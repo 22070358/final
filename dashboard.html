@@ -1,16 +1,13 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management Dashboard</title>
+    <title>Admin - Donor Management System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -23,35 +20,30 @@
                 <ul>
                     <li class="active">
                         <a href="#" class="nav-item">
-                            <span class="nav-icon">📊</span>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="nav-item" id="users-nav">
-                            <span class="nav-icon">❤️</span>
-                            <span>Donor Management</span>
+                            <span class="nav-icon">📊</span><span>Dashboard</span>
                         </a>
                     </li>
                     <li>
                         <a href="#" class="nav-item">
-                            <span class="nav-icon">⚙️</span>
-                            <span>Settings</span>
+                            <span class="nav-icon">❤️</span><span>Donor Management</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item">
+                            <span class="nav-icon">⚙️</span><span>Settings</span>
                         </a>
                     </li>
                 </ul>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="logout.php" class="logout-btn">
+                <a href="index.html" class="logout-btn">
                     <span class="logout-icon">🚪</span> Logout
                 </a>
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Top Header -->
             <header class="top-header">
                 <div class="header-left">
                     <h1>Welcome, admin!</h1>
@@ -65,110 +57,46 @@
                 </div>
             </header>
 
-            <!-- Messages -->
-            
-            <!-- Content -->
             <div class="content-wrapper">
-                <!-- Dashboard Stats -->
                 <section class="dashboard-section">
                     <h2>Dashboard Overview</h2>
                     <div class="stats-grid">
                         <div class="stat-card">
                             <div class="stat-icon">❤️</div>
-                            <div class="stat-content">
-                                <h3>5</h3>
-                                <p>Total Donors</p>
-                            </div>
+                            <div class="stat-content"><h3>5</h3><p>Total Donors</p></div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon">✓</div>
-                            <div class="stat-content">
-                                <h3>5</h3>
-                                <p>Active Donors</p>
-                            </div>
+                            <div class="stat-content"><h3>5</h3><p>Active Donors</p></div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-icon">📅</div>
-                            <div class="stat-content">
-                                <h3>2025-12-02</h3>
-                                <p>Today's Date</p>
-                            </div>
+                            <div class="stat-content"><h3>2025-12-02</h3><p>Today's Date</p></div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Add New Donor Form -->
-                                <section class="dashboard-section">
+                <section class="dashboard-section">
                     <h2>Add New Donor</h2>
                     <div class="form-card">
-                        <form action="" method="POST" class="add-user-form">
-                            <input type="hidden" name="action" value="add">
-
+                        <form class="add-user-form">
                             <div class="form-row">
                                 <div class="form-field">
-                                    <label for="full_name">
-                                        👤 Full Name
-                                    </label>
-                                    <input type="text" id="full_name" name="full_name" required placeholder="Enter full name">
+                                    <label>👤 Full Name</label>
+                                    <input type="text" name="full_name" required placeholder="Enter full name">
                                 </div>
                                 <div class="form-field">
-                                    <label for="email">
-                                        ✉️ Email
-                                    </label>
-                                    <input type="email" id="email" name="email" required placeholder="Enter email">
+                                    <label>✉️ Email</label>
+                                    <input type="email" name="email" required placeholder="Enter email">
                                 </div>
                             </div>
-
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label for="phone">
-                                        ☎️ Phone
-                                    </label>
-                                    <input type="tel" id="phone" name="phone" placeholder="Enter phone number">
-                                </div>
-                                <div class="form-field">
-                                    <label for="blood_type">
-                                        🩸 Blood Type
-                                    </label>
-                                    <select id="blood_type" name="blood_type">
-                                        <option value="">Select Blood Type</option>
-                                        <option value="O+">O+</option>
-                                        <option value="O-">O-</option>
-                                        <option value="A+">A+</option>
-                                        <option value="A-">A-</option>
-                                        <option value="B+">B+</option>
-                                        <option value="B-">B-</option>
-                                        <option value="AB+">AB+</option>
-                                        <option value="AB-">AB-</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-field">
-                                    <label for="blood_donation_date">
-                                        📅 Blood Donation Date
-                                    </label>
-                                    <input type="datetime-local" id="blood_donation_date" name="blood_donation_date"
-                                           value="2025-12-02T11:29">
-                                </div>
-                            </div>
-
-                            <div class="form-field full-width">
-                                <label for="address">
-                                    📍 Address
-                                </label>
-                                <textarea id="address" name="address" rows="3" placeholder="Enter address"></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" onclick="alert('Demo functionality only on Vercel!')">
                                 ➕ Add Donor
                             </button>
                         </form>
                     </div>
                 </section>
                 
-                <!-- Donors Table -->
                 <section class="dashboard-section">
                     <h2>Donor List</h2>
                     <div class="table-card">
@@ -176,138 +104,22 @@
                             <table class="user-table">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Blood Type</th>
-                                        <th>Status</th>
-                                        <th>Donation Date</th>
-                                        <th>Actions</th>
+                                        <th>#</th><th>Name</th><th>Email</th><th>Blood Type</th><th>Status</th><th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                                                                <tr>
-                                                <td>1</td>
-                                                <td>1</td>
-                                                <td>1@d.d</td>
-                                                <td>N/A</td>
-                                                <td>
-                                                    <span class="badge badge-blood">N/A</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge badge-success">
-                                                        Active                                                    </span>
-                                                </td>
-                                                <td>Nov 25, 2025</td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                                                                                <a href="edit.php?id=5" class="btn-icon btn-edit" title="Edit">
-                                                            ✏️
-                                                        </a>
-                                                        <a href="delete.php?id=5" class="btn-icon btn-delete" onclick="return confirm('Are you sure?')" title="Delete">
-                                                            🗑️
-                                                        </a>
-                                                                                                            </div>
-                                                </td>
-                                            </tr>
-                                                                                        <tr>
-                                                <td>2</td>
-                                                <td>bao</td>
-                                                <td>bao@donor.com</td>
-                                                <td></td>
-                                                <td>
-                                                    <span class="badge badge-blood"></span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge badge-success">
-                                                        Active                                                    </span>
-                                                </td>
-                                                <td>Nov 25, 2025</td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                                                                                <a href="edit.php?id=4" class="btn-icon btn-edit" title="Edit">
-                                                            ✏️
-                                                        </a>
-                                                        <a href="delete.php?id=4" class="btn-icon btn-delete" onclick="return confirm('Are you sure?')" title="Delete">
-                                                            🗑️
-                                                        </a>
-                                                                                                            </div>
-                                                </td>
-                                            </tr>
-                                                                                        <tr>
-                                                <td>3</td>
-                                                <td>Admin User</td>
-                                                <td>admin@example.com</td>
-                                                <td>0123456789</td>
-                                                <td>
-                                                    <span class="badge badge-blood">O+</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge badge-success">
-                                                        Active                                                    </span>
-                                                </td>
-                                                <td>Nov 18, 2025</td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                                                                                <a href="edit.php?id=1" class="btn-icon btn-edit" title="Edit">
-                                                            ✏️
-                                                        </a>
-                                                        <a href="delete.php?id=1" class="btn-icon btn-delete" onclick="return confirm('Are you sure?')" title="Delete">
-                                                            🗑️
-                                                        </a>
-                                                                                                            </div>
-                                                </td>
-                                            </tr>
-                                                                                        <tr>
-                                                <td>4</td>
-                                                <td>John Doe</td>
-                                                <td>user1@example.com</td>
-                                                <td>0987654321</td>
-                                                <td>
-                                                    <span class="badge badge-blood">A+</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge badge-success">
-                                                        Active                                                    </span>
-                                                </td>
-                                                <td>Nov 18, 2025</td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                                                                                <a href="edit.php?id=2" class="btn-icon btn-edit" title="Edit">
-                                                            ✏️
-                                                        </a>
-                                                        <a href="delete.php?id=2" class="btn-icon btn-delete" onclick="return confirm('Are you sure?')" title="Delete">
-                                                            🗑️
-                                                        </a>
-                                                                                                            </div>
-                                                </td>
-                                            </tr>
-                                                                                        <tr>
-                                                <td>5</td>
-                                                <td>Jane Smith</td>
-                                                <td>user2@example.com</td>
-                                                <td>0912345678</td>
-                                                <td>
-                                                    <span class="badge badge-blood">B+</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge badge-success">
-                                                        Active                                                    </span>
-                                                </td>
-                                                <td>Nov 18, 2025</td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                                                                                <a href="edit.php?id=3" class="btn-icon btn-edit" title="Edit">
-                                                            ✏️
-                                                        </a>
-                                                        <a href="delete.php?id=3" class="btn-icon btn-delete" onclick="return confirm('Are you sure?')" title="Delete">
-                                                            🗑️
-                                                        </a>
-                                                                                                            </div>
-                                                </td>
-                                            </tr>
-                                                                            </tbody>
+                                    <tr>
+                                        <td>1</td><td>Admin User</td><td>admin@example.com</td>
+                                        <td><span class="badge badge-blood">O+</span></td>
+                                        <td><span class="badge badge-success">Active</span></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn-icon btn-edit">✏️</button>
+                                                <button class="btn-icon btn-delete">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
