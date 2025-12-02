@@ -1,99 +1,64 @@
 <!DOCTYPE html>
-<!-- saved from url=(0049)http://localhost/final/donor-management/login.php -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Donor Management System</title>
-    <link rel="stylesheet" href="./index_files/style.css">
+    <title>Login - Donor Management System</title>
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* CSS bổ sung để đảm bảo hiển thị full màn hình */
+        body, html { margin: 0; padding: 0; height: 100%; font-family: sans-serif; }
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; }
+        .login-box { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .tab-btn.active { background-color: #007bff; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-field { margin-bottom: 1rem; }
+        .form-field input { width: 100%; padding: 8px; box-sizing: border-box; }
+        .btn-primary { width: 100%; padding: 10px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
 </head>
 <body>
+
     <div class="login-container">
         <div class="login-box">
             <div class="login-content">
-                <!-- Logo/Header -->
-                <div class="login-header">
-                    <div class="logo-container">
-                        🏥
-                    </div>
+                <div class="login-header" style="text-align: center; margin-bottom: 20px;">
+                    <div class="logo-container" style="font-size: 3rem;">🏥</div>
                     <h1>Donor Management System</h1>
                 </div>
 
-                <!-- Tabs for Login and Registration -->
                 <div class="login-tabs">
-                    <div class="tab-buttons">
-                        <button class="tab-btn active" data-tab="login">
-                            🔐 Login
-                        </button>
-                        <button class="tab-btn" data-tab="register">
-                            👤 Register
-                        </button>
+                    <div class="tab-buttons" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button class="tab-btn active" data-tab="login" style="flex: 1; padding: 10px;">🔐 Login</button>
+                        <button class="tab-btn" data-tab="register" style="flex: 1; padding: 10px;">👤 Register</button>
                     </div>
 
-                    <!-- Login Form -->
                     <div id="login" class="tab-content active">
-                        <form action="http://localhost/final/donor-management/validation.php" method="POST" class="form-group">
-                                                        <div class="form-field">
-                                <label for="login-username">
-                                    👤 Username
-                                </label>
-                                <input type="text" id="login-username" name="username" required="" placeholder="Enter your username">
-                            </div>
-
+                        <form onsubmit="handleLogin(event)">
                             <div class="form-field">
-                                <label for="login-password">
-                                    🔒 Password
-                                </label>
-                                <input type="password" id="login-password" name="password" required="" placeholder="Enter your password">
+                                <label>👤 Username</label>
+                                <input type="text" id="login-username" required placeholder="Enter username">
                             </div>
-
-                            <div class="form-field checkbox-field">
-                                <label for="remember_me" class="checkbox-label">
-                                    <input type="checkbox" id="remember_me" name="remember_me" value="1">
-                                    <span class="checkmark"></span>
-                                    Ghi nhớ đăng nhập
-                                </label>
+                            <div class="form-field">
+                                <label>🔒 Password</label>
+                                <input type="password" id="login-password" required placeholder="Enter password">
                             </div>
-
-                            <button type="submit" class="btn btn-primary">
-                                🔐 Login
-                            </button>
+                            <button type="submit" class="btn btn-primary">🔐 Login</button>
                         </form>
                     </div>
 
-                    <!-- Registration Form -->
                     <div id="register" class="tab-content">
-                        <form action="http://localhost/final/donor-management/registration.php" method="POST" class="form-group">
-                                                        <div class="form-field">
-                                <label for="reg-username">
-                                    👤 Username
-                                </label>
-                                <input type="text" id="reg-username" name="username" required="" placeholder="Create a username">
-                            </div>
-
+                        <form onsubmit="handleRegister(event)">
                             <div class="form-field">
-                                <label for="reg-email">
-                                    ✉️ Email
-                                </label>
-                                <input type="email" id="reg-email" name="email" required="" placeholder="Enter your email">
+                                <label>✉️ Email</label>
+                                <input type="email" required placeholder="Enter email">
                             </div>
-
                             <div class="form-field">
-                                <label for="reg-password">
-                                    🔒 Password
-                                </label>
-                                <input type="password" id="reg-password" name="password" required="" placeholder="Create a password">
+                                <label>🔒 Password</label>
+                                <input type="password" required placeholder="Create password">
                             </div>
-
-                            <div class="form-field">
-                                <label for="reg-confirm-password">
-                                    🔒 Confirm Password
-                                </label>
-                                <input type="password" id="reg-confirm-password" name="confirm_password" required="" placeholder="Confirm your password">
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">
-                                👤 Register
-                            </button>
+                            <button type="submit" class="btn btn-primary">👤 Register</button>
                         </form>
                     </div>
                 </div>
@@ -102,77 +67,30 @@
     </div>
 
     <script>
-        // Tab switching functionality
+        // Tab switching logic
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const tabName = this.getAttribute('data-tab');
-
-                // Remove active class from all buttons and contents
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-                // Add active class to clicked button and corresponding content
                 this.classList.add('active');
                 document.getElementById(tabName).classList.add('active');
             });
         });
 
-        // Cookie consent banner
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if cookie consent is already given
-            if (!hasCookieConsent()) {
-                showCookieBanner();
-            }
-        });
-
-        function hasCookieConsent() {
-            return document.cookie.indexOf('dms_cookie_consent=accepted') !== -1;
+        // GIẢ LẬP LOGIN (Vì Vercel không chạy PHP)
+        function handleLogin(e) {
+            e.preventDefault(); // Chặn load lại trang
+            // Ở đây bạn có thể check user/pass cứng nếu muốn
+            alert("Đăng nhập thành công! Đang chuyển hướng...");
+            window.location.href = "dashboard.html"; // Chuyển sang file dashboard
         }
 
-        function showCookieBanner() {
-            const banner = document.createElement('div');
-            banner.id = 'cookie-banner';
-            banner.innerHTML = `
-                <div class="cookie-banner-content">
-                    <p>Chúng tôi sử dụng cookies để cải thiện trải nghiệm của bạn. Bằng cách tiếp tục sử dụng trang web này, bạn đồng ý với việc sử dụng cookies.</p>
-                    <div class="cookie-buttons">
-                        <button onclick="acceptCookies()">Chấp nhận</button>
-                        <button onclick="declineCookies()">Từ chối</button>
-                    </div>
-                </div>
-            `;
-            banner.style.cssText = `
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: #333;
-                color: white;
-                padding: 15px;
-                z-index: 1000;
-                text-align: center;
-            `;
-            document.body.appendChild(banner);
-        }
-
-        function acceptCookies() {
-            document.cookie = 'dms_cookie_consent=accepted; path=/; max-age=' + (365 * 24 * 60 * 60);
-            document.getElementById('cookie-banner').remove();
-        }
-
-        function declineCookies() {
-            document.cookie = 'dms_cookie_consent=declined; path=/; max-age=' + (365 * 24 * 60 * 60);
-            document.getElementById('cookie-banner').remove();
+        function handleRegister(e) {
+            e.preventDefault();
+            alert("Đăng ký thành công! Hãy đăng nhập.");
+            window.location.reload();
         }
     </script>
-
-
-<div id="cookie-banner" style="position: fixed; bottom: 0px; left: 0px; right: 0px; background: rgb(51, 51, 51); color: white; padding: 15px; z-index: 1000; text-align: center;">
-                <div class="cookie-banner-content">
-                    <p>Chúng tôi sử dụng cookies để cải thiện trải nghiệm của bạn. Bằng cách tiếp tục sử dụng trang web này, bạn đồng ý với việc sử dụng cookies.</p>
-                    <div class="cookie-buttons">
-                        <button onclick="acceptCookies()">Chấp nhận</button>
-                        <button onclick="declineCookies()">Từ chối</button>
-                    </div>
-                </div>
-            </div></body></html>
+</body>
+</html>
