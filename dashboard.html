@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Donor Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Đảm bảo copy lại CSS sidebar/layout từ file gốc vào style.css hoặc để ở đây */
+        body { display: flex; margin: 0; font-family: sans-serif; }
+        .sidebar { width: 250px; background: #333; color: white; height: 100vh; padding: 20px; box-sizing: border-box; }
+        .main-content { flex: 1; padding: 20px; background: #f4f6f9; height: 100vh; overflow-y: auto; }
+        .nav-item { display: block; color: white; text-decoration: none; padding: 10px 0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        /* Thêm các class CSS khác từ file gốc của bạn vào đây nếu chưa có trong style.css */
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">🏥 <span>DMS</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#" class="nav-item">📊 Dashboard</a></li>
+                <li><a href="#" class="nav-item">❤️ Donors</a></li>
+                <li><a href="index.html" class="nav-item">🚪 Logout</a></li> </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <h1>Welcome, admin!</h1>
+        </header>
+
+        <div class="content-wrapper">
+            <section class="dashboard-section">
+                <h2>Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>5</h3> <p>Total Donors</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>5</h3> <p>Active Donors</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>2025-12-02</h3> <p>Today</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="dashboard-section" style="margin-top: 20px;">
+                <h2>Donor List</h2>
+                <div style="background: white; padding: 20px; border-radius: 8px;">
+                    <table border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>#</th> <th>Name</th> <th>Email</th> <th>Blood Type</th> <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td> <td>Nguyen Van A</td> <td>a@gmail.com</td> <td>O+</td> <td>Active</td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Script bảo vệ: Nếu chưa login (logic giả lập) thì đá về index.html
+        // Thực tế trên static site khó bảo mật tuyệt đối, nhưng đây là flow cơ bản
+        console.log("Welcome to Dashboard");
+    </script>
+</body>
+</html>
