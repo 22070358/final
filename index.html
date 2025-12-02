@@ -110,6 +110,41 @@
         function declineCookies() {
             document.getElementById('cookie-banner').remove();
         }
+
+
+
+
+
+        function handleLogin(e) {
+        e.preventDefault(); // Chặn tải lại trang
+        
+        const user = document.getElementById('login-username').value;
+        const pass = document.getElementById('login-password').value;
+
+        // Kiểm tra mật khẩu cứng (Demo)
+        if (user === 'admin' && pass === '123') {
+            // 1. Lưu trạng thái đăng nhập vào SessionStorage (Tắt tab là mất)
+            sessionStorage.setItem('is_logged_in', 'true');
+            sessionStorage.setItem('username', user);
+            
+            alert('Đăng nhập thành công!');
+            
+            // 2. Chuyển sang Dashboard
+            window.location.href = 'dashboard.html';
+        } else {
+            alert('Sai tài khoản hoặc mật khẩu! (Thử: admin / 123)');
+        }
+    }
+
+
+
+
+
+
+        
+
+
+        
     </script>
 </body>
 </html>
