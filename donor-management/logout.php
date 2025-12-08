@@ -11,3 +11,4 @@ logout_user($link);
 header('Location: login.php');
 exit();
 ?>
+
