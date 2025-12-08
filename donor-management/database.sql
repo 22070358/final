@@ -55,3 +55,4 @@ INSERT INTO `user_profiles` (`user_id`, `full_name`, `email`, `phone`, `address`
 (2, 'John Doe', 'user1@example.com', '0987654321', 'Ho Chi Minh, Vietnam', 'A+', 'donor', 'active', NOW()),
 (3, 'Jane Smith', 'user2@example.com', '0912345678', 'Da Nang, Vietnam', 'B+', 'donor', 'active', NOW());
 
+
