@@ -1,28 +1,23 @@
 <?php
-// logout.php - Xử lý đăng xuất
-include 'config.php';      // Cấu hình
-include 'connection.php';  // Kết nối DB
-include 'helpers.php';     // Hàm hỗ trợ (để dùng clear_remember_me)
+// logout.php - Đăng xuất và xóa Cookie
+include 'config.php';
 
-// 1. Xóa Token trong Database và Cookie trình duyệt
-clear_remember_me($link);
-
-// 2. Xóa sạch Session PHP
-$_SESSION = array(); // Xóa mảng session
-
-// Hủy cookie session (nếu có)
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
+// 1. Xóa Token trong Database (Nếu đang đăng nhập)
+if (isset($_SESSION['user_id'])) {
+    $uid = $_SESSION['user_id'];
+    mysqli_query($link, "UPDATE users SET remember_token = NULL WHERE id = $uid");
 }
 
-// Hủy Session trên Server
+// 2. Xóa Session
+session_unset();
 session_destroy();
 
-// 3. Chuyển hướng về trang đăng nhập
+// 3. Xóa Cookie (Set thời gian về quá khứ)
+if (isset($_COOKIE['remember_me'])) {
+    setcookie('remember_me', '', time() - 3600, "/");
+}
+
+// 4. Chuyển hướng
 header('Location: login.php');
 exit();
 ?>
