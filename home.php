@@ -1,5 +1,5 @@
 <?php
-// home.php - Dashboard (Hiển thị biểu đồ theo 5 tuần của tháng trước)
+// home.php - Dashboard 
 include 'config.php';
 include 'connection.php';
 
@@ -328,3 +328,4 @@ if ($appt_result) {
     </script>
 </body>
 </html>
+
