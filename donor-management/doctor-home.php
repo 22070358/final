@@ -1,5 +1,5 @@
 <?php
-// doctor-home.php - Update: Bỏ icon Lightning, Đồng bộ Header & Sign Out
+// doctor-home.php - Dashboard chính cho Bác sĩ (Đã sửa link menu)
 include 'config.php';
 include 'connection.php';
 
@@ -81,7 +81,7 @@ $current_month = date('F, Y');
                             </a>
                         </div>
                     </div>
-                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -89,23 +89,27 @@ $current_month = date('F, Y');
     <nav class="bg-brand text-white shadow-md">
         <div class="max-w-7xl mx-auto">
             <div class="grid grid-cols-5 text-center">
-                <a href="doctor-home.php" class="py-4 bg-nav-active border-b-4 border-brand-dark flex flex-col items-center gap-1">
+                <a href="doctor-home.php" class="py-4 bg-brand-light border-b-4 border-brand-dark flex flex-col items-center gap-1 group">
                     <div class="bg-white text-brand p-2 rounded-full shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div>
                     <span class="text-sm font-bold text-gray-900">Home</span>
                 </a>
+                
                 <a href="doctor-regis-confirm.php" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
                     <div class="bg-white/20 p-2 rounded-full group-hover:bg-white/30"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
                     <span class="text-sm font-medium">Confirmation</span>
                 </a>
+
                 <a href="doctor-health-check.php" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
                     <div class="bg-white/20 p-2 rounded-full group-hover:bg-white/30"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></div>
                     <span class="text-sm font-medium">Health Check</span>
                 </a>
-                <a href="#" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
+
+                <a href="doctor-record-donation.php" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
                     <div class="bg-white/20 p-2 rounded-full group-hover:bg-white/30"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
                     <span class="text-sm font-medium">Record Donation</span>
                 </a>
-                <a href="#" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
+
+                <a href="doctor-work-schedule.php" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
                     <div class="bg-white/20 p-2 rounded-full group-hover:bg-white/30"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
                     <span class="text-sm font-medium">Work Schedule</span>
                 </a>
@@ -152,18 +156,21 @@ $current_month = date('F, Y');
                                 </div>
                                 <div><p class="text-xs text-gray-400 font-bold uppercase">Staff ID</p><p class="text-sm font-semibold text-gray-800">DOC-3</p></div>
                             </div>
+                            
                             <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition">
                                 <div class="p-2 bg-red-50 text-red-600 rounded-full">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                                 </div>
                                 <div><p class="text-xs text-gray-400 font-bold uppercase">Contact</p><p class="text-sm font-semibold text-gray-800">Update phone number</p></div>
                             </div>
+
                             <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition">
                                 <div class="p-2 bg-red-50 text-red-600 rounded-full">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                 </div>
                                 <div><p class="text-xs text-gray-400 font-bold uppercase">Email</p><p class="text-sm font-semibold text-gray-800">doctor1</p></div>
                             </div>
+
                             <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition">
                                 <div class="p-2 bg-red-50 text-red-600 rounded-full">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -172,21 +179,26 @@ $current_month = date('F, Y');
                             </div>
                         </div>
 
-                        <button class="mt-8 w-full bg-brand hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition transform active:scale-95">Edit Information</button>
+                        <button class="mt-8 w-full bg-brand hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-md transition transform active:scale-95">
+                            Edit Information
+                        </button>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-7 xl:col-span-8 h-full">
                 <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col h-full">
+                    
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Work Schedule
+                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Work Schedule
                         </h3>
                         <div class="flex items-center bg-gray-100 rounded-lg p-1">
                             <span class="px-3 text-sm font-semibold text-gray-700"><?php echo $current_month; ?></span>
                         </div>
                     </div>
+
                     <div class="grid grid-cols-7 mb-2 text-center">
                         <div class="text-xs font-bold text-gray-400 uppercase py-2">Sun</div>
                         <div class="text-xs font-bold text-gray-400 uppercase py-2">Mon</div>
@@ -196,46 +208,61 @@ $current_month = date('F, Y');
                         <div class="text-xs font-bold text-gray-400 uppercase py-2">Fri</div>
                         <div class="text-xs font-bold text-gray-400 uppercase py-2">Sat</div>
                     </div>
+
                     <div class="grid grid-cols-7 gap-2 mb-6">
                         <?php for($i=27; $i<=30; $i++): ?>
                             <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 text-gray-300"><span class="text-sm font-bold"><?php echo $i; ?></span></div>
                         <?php endfor; ?>
+                        
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">1</span><div class="flex gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div></div></div>
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">2</span><div class="flex gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div></div></div>
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">3</span></div>
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">4</span></div>
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">5</span><div class="flex gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div></div></div>
-                        <div class="h-20 bg-brand text-white rounded-xl shadow-md transform scale-105 flex flex-col items-center justify-start py-2 cursor-pointer z-10"><span class="text-sm font-bold">6</span><div class="flex gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-white"></div><div class="w-1.5 h-1.5 rounded-full bg-white"></div></div></div>
+                        
+                        <div class="h-20 bg-brand text-white rounded-xl shadow-md transform scale-105 flex flex-col items-center justify-start py-2 cursor-pointer z-10">
+                            <span class="text-sm font-bold">6</span>
+                            <div class="flex gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-white"></div><div class="w-1.5 h-1.5 rounded-full bg-white"></div></div>
+                        </div>
+
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">7</span></div>
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">8</span><div class="flex gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div></div></div>
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">9</span><div class="flex gap-1 mt-1"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div></div></div>
                         <div class="h-20 border border-gray-100 rounded-xl flex flex-col items-center justify-start py-2 hover:border-red-200 transition cursor-pointer"><span class="text-sm font-bold text-gray-700">10</span></div>
                     </div>
+
                     <div class="mt-auto border-t border-gray-100 pt-4">
                         <h4 class="text-sm font-bold text-gray-700 mb-3">Upcoming Shifts (Today)</h4>
                         <div class="flex gap-3">
                             <div class="flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-lg text-sm font-medium border border-red-100">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 08:00 - 12:00
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                08:00 - 12:00
                             </div>
                             <div class="flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-lg text-sm font-medium border border-red-100">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> 13:30 - 17:00
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                13:30 - 17:00
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
+
         </div>
+
     </main>
 
     <script>
         const userBtn = document.getElementById('user-menu-btn');
         const userDropdown = document.getElementById('user-menu-dropdown');
         const userArrow = document.getElementById('user-menu-arrow');
+
         userBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle('hidden');
             userArrow.classList.toggle('rotate-180');
         });
+
         document.addEventListener('click', (e) => {
             if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
                 userDropdown.classList.add('hidden');
@@ -243,5 +270,6 @@ $current_month = date('F, Y');
             }
         });
     </script>
+
 </body>
 </html>
