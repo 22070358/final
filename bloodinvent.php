@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 }
 
 // --- 2. LẤY DỮ LIỆU TỔNG QUAN ---
-// Logic: "Expiring" là còn <= 20 ngày
+// Logic: "Expiring"
 $inventory = [];
 $all_groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 foreach ($all_groups as $g) {
