@@ -1,22 +1,12 @@
 <?php
-// Database connection for Laragon
-$host = "localhost";
-$user = "root";
-$password = "";
-$database = "user_management_system";
+// connection.php
+include_once 'config.php';
 
-// Create connection
-$link = mysqli_connect($host, $user, $password);
+$link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-// Check connection
 if (!$link) {
     die("Kết nối thất bại: " . mysqli_connect_error());
 }
 
-// Select database
-mysqli_select_db($link, $database) or die("Không thể chọn cơ sở dữ liệu: " . mysqli_error($link));
-
-// Set charset to utf8
-mysqli_set_charset($link, "utf8");
-
+mysqli_set_charset($link, "utf8mb4");
 ?>
