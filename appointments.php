@@ -1,13 +1,9 @@
 <?php
-// appointments.php - Quản lý lịch hẹn (Đã bỏ phân trang tĩnh)
 include 'config.php';
 include 'connection.php';
 
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+// Chỉ cho phép Admin (hoặc Admin và Manager)
+requireRole('Admin');
 
 // Lấy thông tin User
 $current_username = $_SESSION['full_name'] ?? $_SESSION['username'];
