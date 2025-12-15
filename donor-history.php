@@ -1,15 +1,11 @@
 <?php
-// donor-history.php - Đã sửa link menu & Dropdown
 include 'config.php';
 include 'connection.php';
 
-session_start();
+// Chỉ cho phép Donor vào
+requireRole('Donor');
 
-// Kiểm tra quyền Donor
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Donor') {
-    header('Location: login.php');
-    exit();
-}
+
 
 $user_id = $_SESSION['user_id'];
 $full_name = $_SESSION['full_name'] ?? 'Donor';
