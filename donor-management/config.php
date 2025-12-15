@@ -1,80 +1,31 @@
 <?php
 /**
- * config.php - Configuration file
- * Tập trung hóa tất cả các cài đặt của ứng dụng
+ * config.php - Cấu hình hệ thống (Phiên bản chuẩn cho DB sms_demo)
  */
 
-// ============ DATABASE CONFIGURATION ============
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'user_management_system');
+// 1. Cấu hình Database
+define('DB_HOST', 'sql100.infinityfree.com');
+define('DB_USER', 'if0_40633698');
+define('DB_PASSWORD', 'FZLRKNmWBM3wCEZ');
+define('DB_NAME', 'if0_40633698_sms_demo'); // Tên DB mới
 
-// ============ APPLICATION CONFIGURATION ============
-define('APP_NAME', 'Donor Management System');
-define('APP_VERSION', '1.0.0');
-define('APP_URL', 'http://localhost/admin-user-management');
+// 2. Cấu hình Ứng dụng
+define('APP_NAME', 'B-DONOR System');
+define('APP_URL', '/');
 
-// ============ SESSION CONFIGURATION ============
-define('SESSION_TIMEOUT', 1800); // 30 minutes
-define('SESSION_NAME', 'dms_session');
-define('SESSION_PATH', '/');
-define('SESSION_DOMAIN', '');
-define('SESSION_SECURE', false); // Set to true for HTTPS
+// 3. Cấu hình Session
+define('SESSION_TIMEOUT', 3600);
+define('SESSION_NAME', 'sms_session'); 
+define('SESSION_PATH', '/');       
+define('SESSION_DOMAIN', '');      
+define('SESSION_SECURE', false);   
 define('SESSION_HTTPONLY', true);
 
-// ============ COOKIE CONFIGURATION ============
-define('COOKIE_REMEMBER_ME', 'dms_remember');
-define('COOKIE_REMEMBER_EXPIRE', 30 * 24 * 60 * 60); // 30 days
-define('COOKIE_CONSENT', 'dms_cookie_consent');
-define('COOKIE_CONSENT_EXPIRE', 365 * 24 * 60 * 60); // 1 year
+// 4. Cấu hình Cookie Remember Me (QUAN TRỌNG: Dòng này sửa lỗi của bạn)
+define('COOKIE_REMEMBER_ME', 'dms_remember_token');
+define('COOKIE_REMEMBER_EXPIRE', 30 * 24 * 60 * 60); // 30 ngày
 
-// ============ SECURITY CONFIGURATION ============
-define('PASSWORD_MIN_LENGTH', 6);
-define('PASSWORD_HASH_ALGO', PASSWORD_BCRYPT);
-define('PASSWORD_HASH_OPTIONS', ['cost' => 10]);
-
-// ============ PAGINATION ============
-define('ITEMS_PER_PAGE', 10);
-
-// ============ ERROR HANDLING ============
-define('DEBUG_MODE', true);
-define('ERROR_LOG_FILE', __DIR__ . '/logs/error.log');
-
-// ============ ALLOWED FILE EXTENSIONS ============
-define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'pdf']);
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
-
-// ============ ROLES ============
-define('ROLE_ADMIN', 'admin');
-define('ROLE_MODERATOR', 'moderator');
-define('ROLE_USER', 'user');
-
-// ============ USER STATUS ============
-define('STATUS_ACTIVE', 'active');
-define('STATUS_INACTIVE', 'inactive');
-define('STATUS_BANNED', 'banned');
-
-// ============ TIME ZONE ============
-date_default_timezone_set('Asia/Ho_Chi_Minh');
-
-// ============ CREATE LOGS DIRECTORY ============
-$logs_dir = __DIR__ . '/logs';
-if (!is_dir($logs_dir)) {
-    mkdir($logs_dir, 0755, true);
-}
-
-// ============ SESSION INITIALIZATION ============
-// Configure session settings
-ini_set('session.name', SESSION_NAME);
-ini_set('session.cookie_lifetime', 0); // Session cookie
-ini_set('session.cookie_path', SESSION_PATH);
-ini_set('session.cookie_domain', SESSION_DOMAIN);
-ini_set('session.cookie_secure', SESSION_SECURE);
-ini_set('session.cookie_httponly', SESSION_HTTPONLY);
-ini_set('session.gc_maxlifetime', SESSION_TIMEOUT);
-
-// Start session if not already started
+// 5. Khởi động session
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
