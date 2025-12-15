@@ -1,15 +1,10 @@
 <?php
-// donor-appointments.php - Đã sửa link menu Notification
 include 'config.php';
 include 'connection.php';
+include 'auth.php'; // <--- Thêm dòng này
 
-session_start();
-
-// Kiểm tra quyền Donor
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Donor') {
-    header('Location: login.php');
-    exit();
-}
+// Chỉ cho phép Donor vào
+requireRole('Donor');
 
 $user_id = $_SESSION['user_id'];
 $full_name = $_SESSION['full_name'] ?? 'Donor';
