@@ -14,21 +14,22 @@ $user_sub_role = 'Super Admin';
 
 // --- 1. XỬ LÝ LOGIC BACKEND (DELETE & UPDATE) ---
 
-// A. Xử lý XÓA User
+// A. Xử lý XÓA User (SOFT DELETE)
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
+    
     // Không cho phép tự xóa chính mình
     if ($delete_id != $_SESSION['user_id']) {
-        // Xóa các bảng phụ trước (nếu chưa thiết lập ON DELETE CASCADE trong DB)
-        mysqli_query($link, "DELETE FROM donor_profiles WHERE userId = $delete_id");
-        mysqli_query($link, "DELETE FROM appointments WHERE userId = $delete_id");
         
-        // Xóa bảng chính
-        $sql_del = "DELETE FROM users WHERE id = $delete_id";
-        if (mysqli_query($link, $sql_del)) {
-            echo "<script>alert('User deleted successfully!'); window.location.href='user-management.php';</script>";
+        // Thay vì DELETE, ta dùng UPDATE để đánh dấu là đã xóa
+        // KHÔNG xóa bảng appointments hay donor_profiles
+        
+        $sql_soft_delete = "UPDATE users SET is_deleted = 1 WHERE id = $delete_id";
+        
+        if (mysqli_query($link, $sql_soft_delete)) {
+            echo "<script>alert('User has been deactivated (Soft Deleted). History is preserved.'); window.location.href='user-management.php';</script>";
         } else {
-            echo "<script>alert('Error deleting user: " . mysqli_error($link) . "');</script>";
+            echo "<script>alert('Error deactivating user: " . mysqli_error($link) . "');</script>";
         }
     } else {
         echo "<script>alert('You cannot delete your own account!'); window.location.href='user-management.php';</script>";
