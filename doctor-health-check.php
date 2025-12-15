@@ -2,7 +2,6 @@
 <?php
 include 'config.php';
 include 'connection.php';
-include 'auth.php'; // <--- Thêm dòng này
 
 // Dòng này sẽ chặn tất cả ai KHÔNG PHẢI là Doctor (bao gồm Donor và kẻ lạ)
 requireRole('Doctor');
