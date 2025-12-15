@@ -30,3 +30,47 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 ?>
+
+<?php
+// auth.php - Hàm kiểm tra quyền truy cập
+
+function checkLogin() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    // Nếu chưa đăng nhập -> Đá về login
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: login.php');
+        exit();
+    }
+}
+
+/**
+ * Hàm bắt buộc phải có quyền cụ thể mới được vào
+ * @param string|array $allowed_roles Role được phép (ví dụ: 'Doctor' hoặc ['Admin', 'Doctor'])
+ */
+function requireRole($allowed_roles) {
+    checkLogin(); // Đảm bảo đã đăng nhập trước
+
+    $my_role = $_SESSION['role'] ?? '';
+
+    // Chuyển string thành array để xử lý
+    if (!is_array($allowed_roles)) {
+        $allowed_roles = [$allowed_roles];
+    }
+
+    // Nếu role hiện tại KHÔNG nằm trong danh sách cho phép
+    if (!in_array($my_role, $allowed_roles)) {
+        // Tùy chọn: Chuyển hướng về trang chủ đúng của họ
+        if ($my_role == 'Donor') {
+            header('Location: donor-home.php');
+        } elseif ($my_role == 'Doctor') {
+            header('Location: doctor-home.php');
+        } else {
+            header('Location: home.php'); // Admin
+        }
+        exit();
+    }
+}
+?>
+
