@@ -1,5 +1,5 @@
 <?php
-// doctor-record-donation.php - Update: Avatar Red & Volume Select
+// doctor-record-donation.php - Update: Đã sửa link menu Work Schedule
 include 'config.php';
 include 'connection.php';
 
@@ -56,15 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['appt_id'])) {
         $type_only = rtrim($blood_type_final, '+');
     }
 
-    // Insert kho máu
+// Insert kho máu
     $col_date = date('Y-m-d');
     $exp_date = date('Y-m-d', strtotime('+35 days'));
     
+    // Câu lệnh INSERT giữ nguyên cột status
     $sql_inventory = "INSERT INTO bloodunit (volume, bloodType, rhType, collectionDate, expiryDate, storageLocation, status, createdAt) 
                       VALUES (?, ?, ?, ?, ?, 'Central Fridge', 'Available', NOW())";
     
     if ($stmt = mysqli_prepare($link, $sql_inventory)) {
-        mysqli_stmt_bind_param($stmt, "isssss", $volume, $type_only, $rh, $col_date, $exp_date);
+        // FIX: Sửa 'isssss' thành 'issss' (5 tham số tương ứng với 5 dấu ?)
+        mysqli_stmt_bind_param($stmt, "issss", $volume, $type_only, $rh, $col_date, $exp_date);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
     }
@@ -155,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['appt_id'])) {
                     <span class="text-sm font-bold text-gray-900">Record Donation</span>
                 </a>
 
-                <a href="#" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
+                <a href="doctor-work-schedule.php" class="py-4 hover:bg-brand-dark transition group flex flex-col items-center gap-1">
                     <div class="bg-white/20 p-2 rounded-full group-hover:bg-white/30"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
                     <span class="text-sm font-medium">Work Schedule</span>
                 </a>
@@ -186,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['appt_id'])) {
                             $isActive = ($current_appt && $current_appt['id'] == $q['id']);
                             $cardClass = $isActive ? 'bg-green-50 border-green-400 shadow-sm ring-1 ring-green-400' : 'bg-white border-gray-200 hover:border-gray-300';
                             
-                            // Avatar luôn đỏ (Theo yêu cầu)
+                            // Avatar luôn đỏ
                             $blood = $q['display_blood'];
                             $avatarColor = 'bg-red-100 text-red-600'; 
                         ?>
