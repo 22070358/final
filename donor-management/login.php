@@ -1,11 +1,10 @@
 <?php
 /**
- * login.php - Đăng nhập (Phân quyền: Admin, Donor, Doctor)
+ * login.php - Đăng nhập (Update: Link Forgot Pass & Create Account)
  */
 session_start();
 include 'config.php';
 include 'connection.php';
-// include 'helpers.php'; // Bỏ comment nếu bạn có file helpers
 
 // 1. Nếu đã đăng nhập -> Kiểm tra quyền để chuyển hướng luôn
 if (isset($_SESSION['user_id'])) {
@@ -27,8 +26,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username_input = mysqli_real_escape_string($link, $_POST['username']);
     $password_input = $_POST['password'];
-    $remember = isset($_POST['remember']);
-
+    
     // Query tìm user
     $query = "SELECT * FROM users WHERE username = '$username_input' OR email = '$username_input'";
     $result = mysqli_query($link, $query);
@@ -45,17 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if ($check_pass) {
-            // Đăng nhập thành công -> Lưu Session
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['full_name'] = $user['name'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['avatar'] = $user['avatarUrl'] ?? '';
 
-            // Xử lý Remember Me (Nếu cần)
-            // if ($remember && function_exists('remember_me')) { remember_me($link, $user['id']); }
-
-            // --- LOGIC CHUYỂN HƯỚNG THEO QUYỀN (MỚI) ---
             if ($user['role'] === 'Donor') {
                 header('Location: donor-home.php');
             } elseif ($user['role'] === 'Doctor') {
@@ -88,18 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 extend: {
                     fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
                     colors: {
-                        brand: {
-                            500: '#ef4444',
-                            600: '#dc2626',
-                            700: '#b91c1c',
-                            800: '#991b1b',
-                        }
+                        brand: { 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c', 800: '#991b1b' }
                     }
                 }
             }
         }
         
-        // Theme Check
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -112,7 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="min-h-screen flex w-full">
         
         <div class="w-full lg:w-1/2 flex flex-col justify-between p-8 lg:p-16 xl:p-24 bg-white dark:bg-gray-900 z-10">
-            
             <div>
                 <a href="#" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-400">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m15 18-6-6 6-6"/></svg>
@@ -161,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                             <span class="text-sm text-gray-600 dark:text-gray-400 font-medium select-none">Remember me</span>
                         </label>
-                        <a href="#" class="text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-500">Forgot Password?</a>
+                        <a href="forgot-password.php" class="text-sm font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-500">Forgot Password?</a>
                     </div>
 
                     <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3.5 px-4 rounded-lg transition-colors shadow-lg shadow-brand-600/30 text-sm tracking-wide">
@@ -169,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </button>
 
                     <div class="text-center mt-8">
-                        <p class="text-gray-600 dark:text-gray-400 text-sm">Don't have an account? <a href="#" onclick="alert('Tính năng đăng ký đang phát triển!')" class="text-brand-600 font-bold hover:underline dark:text-brand-500 ml-1">Create Account</a></p>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Don't have an account? <a href="register.php" class="text-brand-600 font-bold hover:underline dark:text-brand-500 ml-1">Create Account</a></p>
                     </div>
                 </form>
             </div>
