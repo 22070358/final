@@ -1,15 +1,11 @@
 <?php
-// doctor-record-donation.php - Update: Đã sửa link menu Work Schedule
 include 'config.php';
 include 'connection.php';
 
-session_start();
+// Dòng này sẽ chặn tất cả ai KHÔNG PHẢI là Doctor (bao gồm Donor và kẻ lạ)
+requireRole('Doctor');
 
-// Kiểm tra quyền Doctor
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+
 $full_name = $_SESSION['full_name'] ?? 'Dr. Alice';
 
 // --- 1. LẤY DANH SÁCH CHỜ THU THẬP ---
