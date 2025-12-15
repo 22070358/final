@@ -1,15 +1,12 @@
 <?php
-// doctor-health-check.php - Update: Đã sửa link menu
+<?php
 include 'config.php';
 include 'connection.php';
+include 'auth.php'; // <--- Thêm dòng này
 
-session_start();
+// Dòng này sẽ chặn tất cả ai KHÔNG PHẢI là Doctor (bao gồm Donor và kẻ lạ)
+requireRole('Doctor');
 
-// Kiểm tra quyền Doctor
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
 $full_name = $_SESSION['full_name'] ?? 'Dr. Alice';
 
 // --- 1. XỬ LÝ LỌC DANH SÁCH (Filter) ---
