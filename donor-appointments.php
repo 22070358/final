@@ -1,7 +1,6 @@
 <?php
 include 'config.php';
 include 'connection.php';
-include 'auth.php'; // <--- Thêm dòng này
 
 // Chỉ cho phép Donor vào
 requireRole('Donor');
