@@ -1,15 +1,11 @@
 <?php
-// donor-donation.php - Đã mở khóa Form Donor Info & Cập nhật logic lưu
 include 'config.php';
 include 'connection.php';
 
-session_start();
+// Chỉ cho phép Donor vào
+requireRole('Donor');
 
-// Kiểm tra đăng nhập
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Donor') {
-    header('Location: login.php');
-    exit();
-}
+
 
 $user_id = $_SESSION['user_id'];
 $username = $_SESSION['username'];
