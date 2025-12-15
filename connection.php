@@ -10,3 +10,4 @@ if (!$link) {
 
 mysqli_set_charset($link, "utf8mb4");
 ?>
+
