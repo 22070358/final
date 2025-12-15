@@ -1,5 +1,5 @@
 <?php
-// doctor-work-schedule.php - Lịch làm việc & Danh sách hẹn (Design theo image_fc3b64.png & image_fc3b62.png)
+// doctor-work-schedule.php - Lịch làm việc (Đã thu nhỏ & Fix lỗi nhảy trang)
 include 'config.php';
 include 'connection.php';
 
@@ -13,12 +13,11 @@ if (!isset($_SESSION['user_id'])) {
 $full_name = $_SESSION['full_name'] ?? 'Dr. Alice';
 
 // --- XỬ LÝ THỜI GIAN ---
-// Lấy tháng/năm/ngày từ URL hoặc mặc định hiện tại
 $current_month = isset($_GET['m']) ? intval($_GET['m']) : date('n');
 $current_year  = isset($_GET['y']) ? intval($_GET['y']) : date('Y');
 $selected_day  = isset($_GET['d']) ? intval($_GET['d']) : date('j');
 
-// Xử lý nút Next/Prev tháng
+// Xử lý Next/Prev
 $prev_month = $current_month - 1;
 $prev_year = $current_year;
 if ($prev_month < 1) { $prev_month = 12; $prev_year--; }
@@ -27,12 +26,11 @@ $next_month = $current_month + 1;
 $next_year = $current_year;
 if ($next_month > 12) { $next_month = 1; $next_year++; }
 
-// Thông tin ngày đã chọn
+// Ngày đang chọn
 $selected_date_str = sprintf('%04d-%02d-%02d', $current_year, $current_month, $selected_day);
 $selected_date_display = date('l, d F Y', strtotime($selected_date_str));
 
-// --- 1. LẤY DỮ LIỆU CHO LỊCH (Counts per day) ---
-// Lấy tất cả lịch hẹn trong tháng này để hiển thị badge trên lịch
+// --- 1. DATA LỊCH (Counts) ---
 $month_start = sprintf('%04d-%02d-01', $current_year, $current_month);
 $month_end   = date('Y-m-t', strtotime($month_start));
 
@@ -44,23 +42,14 @@ $sql_cal = "SELECT DAY(appointmentDate) as day_num, status, COUNT(*) as cnt
 $res_cal = mysqli_query($link, $sql_cal);
 while ($row = mysqli_fetch_assoc($res_cal)) {
     $d = $row['day_num'];
-    if (!isset($calendar_data[$d])) {
-        $calendar_data[$d] = ['pending' => 0, 'set' => 0];
-    }
-    
-    if ($row['status'] == 'Pending') {
-        $calendar_data[$d]['pending'] += $row['cnt'];
-    } else {
-        // Confirmed, Completed, ReadyToDonate... coi như là "Set"
-        $calendar_data[$d]['set'] += $row['cnt'];
-    }
+    if (!isset($calendar_data[$d])) $calendar_data[$d] = ['pending' => 0, 'set' => 0];
+    if ($row['status'] == 'Pending') $calendar_data[$d]['pending'] += $row['cnt'];
+    else $calendar_data[$d]['set'] += $row['cnt'];
 }
 
-// --- 2. LẤY CHI TIẾT LỊCH HẸN CHO NGÀY ĐANG CHỌN (List bên phải) ---
+// --- 2. DATA CHI TIẾT NGÀY CHỌN ---
 $daily_appts = [];
-$sql_daily = "SELECT * FROM appointments 
-              WHERE DATE(appointmentDate) = '$selected_date_str' 
-              ORDER BY appointmentDate ASC";
+$sql_daily = "SELECT * FROM appointments WHERE DATE(appointmentDate) = '$selected_date_str' ORDER BY appointmentDate ASC";
 $res_daily = mysqli_query($link, $sql_daily);
 while ($row = mysqli_fetch_assoc($res_daily)) {
     $daily_appts[] = $row;
@@ -69,76 +58,51 @@ while ($row = mysqli_fetch_assoc($res_daily)) {
 // --- HÀM VẼ LỊCH ---
 function build_calendar($month, $year, $calendar_data, $selected_day) {
     $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-    $firstDayOfWeek = date('w', strtotime("$year-$month-01")); // 0 (Sun) - 6 (Sat)
+    $firstDayOfWeek = date('w', strtotime("$year-$month-01")); 
     
-    $html = '';
-    $dayCount = 1;
+    $html = '<div class="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">';
     
-    // Hàng tuần
-    $html .= '<div class="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">';
-    
-    // Header Thứ
-    $daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    foreach ($daysOfWeek as $day) {
-        $html .= '<div class="bg-gray-50 text-center py-3 text-xs font-bold text-gray-500 uppercase">' . $day . '</div>';
+    // Header
+    foreach (['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'] as $day) {
+        $html .= '<div class="bg-gray-50 text-center py-2 text-xs font-bold text-gray-500 uppercase">' . $day . '</div>';
     }
 
-    // Ô trống đầu tháng
-    for ($i = 0; $i < $firstDayOfWeek; $i++) {
-        $html .= '<div class="bg-white h-32"></div>';
-    }
+    // Empty cells start
+    for ($i = 0; $i < $firstDayOfWeek; $i++) $html .= '<div class="bg-white h-24"></div>';
 
-    // Các ngày trong tháng
+    // Days
     for ($day = 1; $day <= $daysInMonth; $day++) {
         $isToday = ($day == date('j') && $month == date('n') && $year == date('Y'));
         $isSelected = ($day == $selected_day);
         
-        // CSS cho ô ngày
-        $cellClass = "bg-white h-32 p-2 relative flex flex-col justify-between hover:bg-gray-50 transition cursor-pointer border border-transparent";
-        if ($isSelected) {
-            $cellClass = "bg-red-50 h-32 p-2 relative flex flex-col justify-between cursor-pointer border border-red-400 z-10";
-        }
+        // CSS: h-24 (96px) thay vì h-32 (128px) để nhỏ gọn hơn
+        $cellClass = "bg-white h-24 p-2 relative flex flex-col justify-between hover:bg-gray-50 transition cursor-pointer border border-transparent";
+        if ($isSelected) $cellClass = "bg-red-50 h-24 p-2 relative flex flex-col justify-between cursor-pointer border border-red-400 z-10";
 
-        // Link chọn ngày
+        // Thêm onclick="saveScroll()" để lưu vị trí
         $link = "?m=$month&y=$year&d=$day";
-
-        $html .= "<a href='$link' class='$cellClass'>";
+        $html .= "<a href='$link' class='$cellClass' onclick='saveScrollPosition()'>";
         
-        // Số ngày
         $numClass = $isSelected ? "text-red-600 font-bold" : "text-gray-700 font-semibold";
-        $html .= "<span class='$numClass'>$day</span>";
+        $html .= "<span class='$numClass text-sm'>$day</span>";
 
-        // Badge Today
-        if ($isToday) {
-            $html .= "<span class='absolute top-2 right-2 text-[10px] font-bold text-blue-600 uppercase'>TODAY</span>";
-        }
+        if ($isToday) $html .= "<span class='absolute top-2 right-2 text-[9px] font-bold text-blue-600 uppercase'>TODAY</span>";
 
-        // Badges Appointments
         $html .= "<div class='flex flex-col gap-1 mt-1'>";
         if (isset($calendar_data[$day])) {
-            if ($calendar_data[$day]['set'] > 0) {
-                $html .= "<span class='bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded font-medium text-center'>{$calendar_data[$day]['set']} Set</span>";
-            }
-            if ($calendar_data[$day]['pending'] > 0) {
-                $html .= "<span class='bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded font-medium text-center'>{$calendar_data[$day]['pending']} Pending</span>";
-            }
+            if ($calendar_data[$day]['set'] > 0) 
+                $html .= "<span class='bg-green-100 text-green-700 text-[9px] px-1.5 py-0.5 rounded font-medium text-center'>{$calendar_data[$day]['set']} Set</span>";
+            if ($calendar_data[$day]['pending'] > 0) 
+                $html .= "<span class='bg-yellow-100 text-yellow-700 text-[9px] px-1.5 py-0.5 rounded font-medium text-center'>{$calendar_data[$day]['pending']} Pending</span>";
         }
-        $html .= "</div>";
-
-        $html .= "</a>";
-
-        // Xuống dòng nếu hết tuần (tùy chọn, grid tự handle nhưng comment để rõ logic)
+        $html .= "</div></a>";
     }
 
-    // Ô trống cuối tháng
-    $remainingDays = 7 - (($daysInMonth + $firstDayOfWeek) % 7);
-    if ($remainingDays < 7) {
-        for ($i = 0; $i < $remainingDays; $i++) {
-            $html .= '<div class="bg-white h-32"></div>';
-        }
-    }
+    // Empty cells end
+    $remaining = 7 - (($daysInMonth + $firstDayOfWeek) % 7);
+    if ($remaining < 7) for ($i = 0; $i < $remaining; $i++) $html .= '<div class="bg-white h-24"></div>';
 
-    $html .= '</div>'; // End grid
+    $html .= '</div>';
     return $html;
 }
 ?>
@@ -257,13 +221,12 @@ function build_calendar($month, $year, $calendar_data, $selected_day) {
                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <p class="text-gray-500 italic mb-2">No appointments found for this day.</p>
-                            <p class="text-xs text-gray-400">(Check console log for debug info)</p>
                         </div>
                     <?php else: ?>
                         <div class="space-y-4 flex-1 overflow-y-auto pr-2">
                             <?php foreach ($daily_appts as $appt): 
                                 $statusBadge = 'bg-gray-100 text-gray-600';
-                                if ($appt['status'] == 'Completed') $statusBadge = 'bg-gray-200 text-gray-700'; // Như hình
+                                if ($appt['status'] == 'Completed') $statusBadge = 'bg-gray-200 text-gray-700'; 
                                 if ($appt['status'] == 'Confirmed') $statusBadge = 'bg-green-100 text-green-700';
                                 if ($appt['status'] == 'Pending') $statusBadge = 'bg-yellow-100 text-yellow-700';
                             ?>
@@ -299,18 +262,35 @@ function build_calendar($month, $year, $calendar_data, $selected_day) {
     </main>
 
     <script>
+        // Dropdown Menu Logic
         const userBtn = document.getElementById('user-menu-btn');
         const userDropdown = document.getElementById('user-menu-dropdown');
         const userArrow = document.getElementById('user-menu-arrow');
-        userBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-            userArrow.classList.toggle('rotate-180');
-        });
+        
+        if(userBtn) {
+            userBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+                userArrow.classList.toggle('rotate-180');
+            });
+        }
         document.addEventListener('click', (e) => {
-            if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+            if (userBtn && !userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
                 userDropdown.classList.add('hidden');
                 userArrow.classList.remove('rotate-180');
+            }
+        });
+
+        // Scroll Position Logic (Fix lỗi nhảy trang)
+        function saveScrollPosition() {
+            sessionStorage.setItem('scrollPos', window.scrollY);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const scrollPos = sessionStorage.getItem('scrollPos');
+            if (scrollPos) {
+                window.scrollTo(0, parseInt(scrollPos));
+                sessionStorage.removeItem('scrollPos'); // Clear sau khi dùng
             }
         });
     </script>
