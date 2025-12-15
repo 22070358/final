@@ -38,3 +38,4 @@ if (mysqli_query($link, $delete_query)) {
 header('Location: home.php');
 exit();
 ?>
+
