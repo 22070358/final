@@ -1,14 +1,11 @@
 <?php
-// doctor-regis-confirm.php - Đã sửa link menu
 include 'config.php';
 include 'connection.php';
 
-session_start();
+// Dòng này sẽ chặn tất cả ai KHÔNG PHẢI là Doctor (bao gồm Donor và kẻ lạ)
+requireRole('Doctor');
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+
 
 $user_id = $_SESSION['user_id'];
 $full_name = $_SESSION['full_name'] ?? 'Dr. Alice';
