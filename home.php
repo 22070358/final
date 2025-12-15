@@ -1,13 +1,10 @@
 <?php
-// home.php - Dashboard 
 include 'config.php';
 include 'connection.php';
 
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+// Chỉ cho phép Admin (hoặc Admin và Manager)
+requireRole('Admin');
+
 
 $current_username = $_SESSION['full_name'] ?? $_SESSION['username'];
 $current_avatar = "https://ui-avatars.com/api/?name=" . urlencode($current_username) . "&background=random&color=fff";
@@ -328,4 +325,5 @@ if ($appt_result) {
     </script>
 </body>
 </html>
+
 
