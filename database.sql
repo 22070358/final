@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: sql100.infinityfree.com
--- Thời gian đã tạo: Th12 15, 2025 lúc 12:45 PM
+-- Thời gian đã tạo: Th12 15, 2025 lúc 10:28 PM
 -- Phiên bản máy phục vụ: 10.6.22-MariaDB
 -- Phiên bản PHP: 7.2.22
 
@@ -198,7 +198,8 @@ INSERT INTO `donor_profiles` (`id`, `userId`, `phone`, `dateOfBirth`, `address`,
 (16, 19, '0900000116', '1990-04-16 00:00:00', 'Address donor16', 'Female', 'O', 'Negative', NULL, '2025-12-14 06:51:25'),
 (17, 20, '0900000117', '1990-05-17 00:00:00', 'Address donor17', 'Male', 'A', 'Positive', NULL, '2025-12-14 06:51:25'),
 (18, 21, '0900000118', '1990-06-18 00:00:00', 'Address donor18', 'Female', 'B', 'Negative', NULL, '2025-12-14 06:51:25'),
-(19, 22, '0900000119', '1990-07-19 00:00:00', 'Address donor19', 'Male', 'AB', 'Positive', NULL, '2025-12-14 06:51:25');
+(19, 22, '0900000119', '1990-07-19 00:00:00', 'Address donor19', 'Male', 'AB', 'Positive', NULL, '2025-12-14 06:51:25'),
+(21, 50, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-15 10:27:24');
 
 -- --------------------------------------------------------
 
@@ -297,47 +298,50 @@ CREATE TABLE `users` (
   `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
   `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `reset_token` varchar(191) DEFAULT NULL,
-  `reset_token_expiry` datetime DEFAULT NULL
+  `reset_token_expiry` datetime DEFAULT NULL,
+  `is_deleted` tinyint(1) DEFAULT 0,
+  `remember_token` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password_hash`, `name`, `email`, `avatarUrl`, `role`, `createdAt`, `updatedAt`, `reset_token`, `reset_token_expiry`) VALUES
-(1, 'admin', 'e10adc3949ba59abbe56e057f20f883e', 'Administrator', 'admin@example.com', NULL, 'Admin', '2025-12-14 01:56:00', '2025-12-14 03:06:53', NULL, NULL),
-(2, 'doctor1', 'e10adc3949ba59abbe56e057f20f883e', 'Dr. Alice', 'doctor1@example.com', NULL, 'Doctor', '2025-12-14 01:56:00', '2025-12-14 03:06:53', NULL, NULL),
-(3, 'doctor2', 'e10adc3949ba59abbe56e057f20f883e', 'Dr. Bob', 'doctor2@example.com', NULL, 'Doctor', '2025-12-14 01:56:00', '2025-12-14 03:06:53', NULL, NULL),
-(4, 'donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 1', 'donor1@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(5, 'donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 2', 'donor2@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(6, 'donor3', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 3', 'donor3@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(8, 'donor5', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 5', 'donor5@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(9, 'donor6', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 6', 'donor6@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(10, 'donor7', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 7', 'donor7@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(12, 'donor9', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 9', 'donor9@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(13, 'donor10', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 10', 'donor10@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(14, 'donor11', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 11', 'donor11@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(15, 'donor12', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 12', 'donor12@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(16, 'donor13', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 13', 'donor13@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(17, 'donor14', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 14', 'donor14@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(18, 'donor15', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 15', 'donor15@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(19, 'donor16', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 16', 'donor16@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(20, 'donor17', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 17', 'donor17@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(21, 'donor18', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 18', 'donor18@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL),
-(22, 'donor20', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 20', 'donor19@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 07:58:23', NULL, NULL),
-(37, 'nov_donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor A', 'nov1@test.com', NULL, 'Donor', '2025-11-05 10:00:00', '2025-12-14 09:51:33', NULL, NULL),
-(38, 'nov_donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor B', 'nov2@test.com', NULL, 'Donor', '2025-11-12 14:00:00', '2025-12-14 09:51:33', NULL, NULL),
-(39, 'nov_donor3', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor C', 'nov3@test.com', NULL, 'Donor', '2025-11-20 09:30:00', '2025-12-14 09:51:33', NULL, NULL),
-(40, 'nov_donor4', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor D', 'nov4@test.com', NULL, 'Donor', '2025-11-28 16:15:00', '2025-12-14 09:51:33', NULL, NULL),
-(41, 'dec_donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor A', 'dec1@test.com', NULL, 'Donor', '2025-12-02 08:00:00', '2025-12-14 09:51:33', NULL, NULL),
-(42, 'dec_donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor B', 'dec2@test.com', NULL, 'Donor', '2025-12-05 11:00:00', '2025-12-14 09:51:33', NULL, NULL),
-(43, 'dec_donor3', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor C', 'dec3@test.com', NULL, 'Donor', '2025-12-10 13:45:00', '2025-12-14 09:51:33', NULL, NULL),
-(44, 'dec_donor4', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor D', 'dec4@test.com', NULL, 'Donor', '2025-12-14 09:00:00', '2025-12-14 09:51:33', NULL, NULL),
-(45, 'dec_donor5', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor E', 'dec5@test.com', NULL, 'Donor', '2025-12-14 15:30:00', '2025-12-14 09:51:33', NULL, NULL),
-(46, 'dec_donor6', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor F', 'dec6@test.com', NULL, 'Donor', '2025-12-18 10:20:00', '2025-12-14 09:51:33', NULL, NULL),
-(47, 'dec_donor7', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor G', 'dec7@test.com', NULL, 'Donor', '2025-12-25 14:00:00', '2025-12-14 09:51:33', NULL, NULL),
-(48, 'jan_donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Jan Donor A', 'jan1@test.com', NULL, 'Donor', '2026-01-05 09:00:00', '2025-12-14 09:51:33', NULL, NULL),
-(49, 'jan_donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Jan Donor B', 'jan2@test.com', NULL, 'Donor', '2026-01-10 10:30:00', '2025-12-14 09:51:33', NULL, NULL);
+INSERT INTO `users` (`id`, `username`, `password_hash`, `name`, `email`, `avatarUrl`, `role`, `createdAt`, `updatedAt`, `reset_token`, `reset_token_expiry`, `is_deleted`, `remember_token`) VALUES
+(1, 'admin', 'e10adc3949ba59abbe56e057f20f883e', 'Administrator', 'admin@example.com', NULL, 'Admin', '2025-12-14 01:56:00', '2025-12-14 03:06:53', NULL, NULL, 0, NULL),
+(2, 'doctor1', 'e10adc3949ba59abbe56e057f20f883e', 'Dr. Alice', 'doctor1@example.com', NULL, 'Doctor', '2025-12-14 01:56:00', '2025-12-14 03:06:53', NULL, NULL, 0, NULL),
+(3, 'doctor2', 'e10adc3949ba59abbe56e057f20f883e', 'Dr. Bob', 'doctor2@example.com', NULL, 'Doctor', '2025-12-14 01:56:00', '2025-12-14 03:06:53', NULL, NULL, 0, NULL),
+(4, 'donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 1', 'donor1@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-15 14:07:24', NULL, NULL, 0, 'a864192194a62440d19e7575e8fc0aeb5a12a9233da9428578e48f012b2355bf'),
+(5, 'donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 2', 'donor2@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(6, 'donor3', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 3', 'donor3@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(8, 'donor5', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 5', 'donor5@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(9, 'donor6', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 6', 'donor6@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(10, 'donor7', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 7', 'donor7@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(12, 'donor9', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 9', 'donor9@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(13, 'donor10', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 10', 'donor10@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(14, 'donor11', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 11', 'donor11@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(15, 'donor12', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 12', 'donor12@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(16, 'donor13', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 13', 'donor13@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(17, 'donor14', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 14', 'donor14@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(18, 'donor15', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 15', 'donor15@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(19, 'donor16', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 16', 'donor16@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(20, 'donor17', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 17', 'donor17@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(21, 'donor18', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 18', 'donor18@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 06:51:25', NULL, NULL, 0, NULL),
+(22, 'donor20', 'e10adc3949ba59abbe56e057f20f883e', 'Donor 20', 'donor19@example.com', NULL, 'Donor', '2025-12-14 06:51:25', '2025-12-14 07:58:23', NULL, NULL, 0, NULL),
+(37, 'nov_donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor A', 'nov1@test.com', NULL, 'Donor', '2025-11-05 10:00:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(38, 'nov_donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor B', 'nov2@test.com', NULL, 'Donor', '2025-11-12 14:00:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(39, 'nov_donor3', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor C', 'nov3@test.com', NULL, 'Donor', '2025-11-20 09:30:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(40, 'nov_donor4', 'e10adc3949ba59abbe56e057f20f883e', 'Nov Donor D', 'nov4@test.com', NULL, 'Donor', '2025-11-28 16:15:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(41, 'dec_donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor A', 'dec1@test.com', NULL, 'Donor', '2025-12-02 08:00:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(42, 'dec_donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor B', 'dec2@test.com', NULL, 'Donor', '2025-12-05 11:00:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(43, 'dec_donor3', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor C', 'dec3@test.com', NULL, 'Donor', '2025-12-10 13:45:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(44, 'dec_donor4', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor D', 'dec4@test.com', NULL, 'Donor', '2025-12-14 09:00:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(45, 'dec_donor5', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor E', 'dec5@test.com', NULL, 'Donor', '2025-12-14 15:30:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(46, 'dec_donor6', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor F', 'dec6@test.com', NULL, 'Donor', '2025-12-18 10:20:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(47, 'dec_donor7', 'e10adc3949ba59abbe56e057f20f883e', 'Dec Donor G', 'dec7@test.com', NULL, 'Donor', '2025-12-25 14:00:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(48, 'jan_donor1', 'e10adc3949ba59abbe56e057f20f883e', 'Jan Donor A', 'jan1@test.com', NULL, 'Donor', '2026-01-05 09:00:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(49, 'jan_donor2', 'e10adc3949ba59abbe56e057f20f883e', 'Jan Donor B', 'jan2@test.com', NULL, 'Donor', '2026-01-10 10:30:00', '2025-12-14 09:51:33', NULL, NULL, 0, NULL),
+(50, '1', '$2y$10$VNwOt6mf/adFr/MFx0NoQuksDfs7..RN12YoRUprkECB13/c8WKNi', '1 1', '1@d.d', 'https://ui-avatars.com/api/?name=1+1&background=random&color=fff', 'Donor', '2025-12-15 10:27:24', '2025-12-15 10:27:24', NULL, NULL, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -443,7 +447,7 @@ ALTER TABLE `blood_inventory`
 -- AUTO_INCREMENT cho bảng `donor_profiles`
 --
 ALTER TABLE `donor_profiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT cho bảng `healthcheck`
@@ -461,7 +465,7 @@ ALTER TABLE `notification`
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT cho bảng `user_sessions`
@@ -513,4 +517,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
