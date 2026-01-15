@@ -1,4 +1,8 @@
 <?php
+// Dán vào đầu file user-management.php để hiện lỗi
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // user-management.php - Quản lý User (Full Logic: Add, Edit, Delete, Soft Delete)
 include 'config.php';
 include 'connection.php';
@@ -31,25 +35,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     if (mysqli_num_rows($check_result) > 0) {
         echo "<script>alert('Error: Username or Email already exists!'); window.location.href='user-management.php';</script>";
     } else {
-        // 2. Mã hóa mật khẩu (MD5 cho đồng bộ với data mẫu)
-        $pass_hash = md5($add_pass);
+        // 2. Mã hóa mật khẩu
+        $pass_hash = password_hash($add_pass, PASSWORD_DEFAULT); // Dùng chuẩn mới an toàn hơn MD5
+        // Nếu muốn dùng MD5 cho giống data cũ thì dùng dòng này: $pass_hash = md5($add_pass);
+        
         $avatar_url = "https://ui-avatars.com/api/?name=" . urlencode($add_name) . "&background=random&color=fff";
 
-        // 3. Insert vào bảng users
-        $sql_insert = "INSERT INTO users (username, password_hash, name, email, role, avatarUrl, status, createdAt) 
-                       VALUES ('$add_username', '$pass_hash', '$add_name', '$add_email', '$add_role', '$avatar_url', 'active', NOW())";
+        // 3. Insert vào bảng users (ĐÃ BỎ CỘT 'status')
+        $sql_insert = "INSERT INTO users (username, password_hash, name, email, role, avatarUrl, createdAt, is_deleted) 
+                       VALUES ('$add_username', '$pass_hash', '$add_name', '$add_email', '$add_role', '$avatar_url', NOW(), 0)";
         
+        // Thực thi và kiểm tra lỗi
         if (mysqli_query($link, $sql_insert)) {
             $new_user_id = mysqli_insert_id($link);
 
-            // 4. Nếu là Donor, tạo luôn profile rỗng để tránh lỗi foreign key sau này
+            // 4. Nếu là Donor, tạo profile rỗng
             if ($add_role == 'Donor') {
                 mysqli_query($link, "INSERT INTO donor_profiles (userId) VALUES ($new_user_id)");
             }
 
             echo "<script>alert('New user added successfully!'); window.location.href='user-management.php';</script>";
         } else {
-            echo "<script>alert('Database Error: " . mysqli_error($link) . "');</script>";
+            // Hiện lỗi cụ thể ra màn hình nếu thất bại
+            echo "<div style='background: #fee; color: red; padding: 20px; border: 1px solid red; margin: 20px;'>";
+            echo "<h3>LỖI SQL:</h3>";
+            echo mysqli_error($link);
+            echo "<br><strong>Câu lệnh:</strong> " . $sql_insert;
+            echo "</div>";
+            exit(); 
         }
     }
 }
