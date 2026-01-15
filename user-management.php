@@ -1,42 +1,60 @@
 <?php
+// user-management.php - Quản lý User (Full Logic: Add, Edit, Delete, Soft Delete)
 include 'config.php';
 include 'connection.php';
 
-// Chỉ cho phép Admin (hoặc Admin và Manager)
-requireRole('Admin');
-
-
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
 
 $current_username = $_SESSION['full_name'] ?? $_SESSION['username'];
 $current_avatar = "https://ui-avatars.com/api/?name=" . urlencode($current_username) . "&background=random&color=fff";
 $user_role = $_SESSION['role'] ?? 'Admin User';
 $user_sub_role = 'Super Admin';
 
-// --- 1. XỬ LÝ LOGIC BACKEND (DELETE & UPDATE) ---
+// --- 1. XỬ LÝ LOGIC BACKEND ---
 
-// A. Xử lý XÓA User (SOFT DELETE)
-if (isset($_GET['delete_id'])) {
-    $delete_id = intval($_GET['delete_id']);
-    
-    // Không cho phép tự xóa chính mình
-    if ($delete_id != $_SESSION['user_id']) {
-        
-        // Thay vì DELETE, ta dùng UPDATE để đánh dấu là đã xóa
-        // KHÔNG xóa bảng appointments hay donor_profiles
-        
-        $sql_soft_delete = "UPDATE users SET is_deleted = 1 WHERE id = $delete_id";
-        
-        if (mysqli_query($link, $sql_soft_delete)) {
-            echo "<script>alert('User has been deactivated (Soft Deleted). History is preserved.'); window.location.href='user-management.php';</script>";
-        } else {
-            echo "<script>alert('Error deactivating user: " . mysqli_error($link) . "');</script>";
-        }
+// A. Xử lý THÊM User Mới (ADD NEW)
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'add') {
+    $add_name = mysqli_real_escape_string($link, $_POST['full_name']);
+    $add_username = mysqli_real_escape_string($link, $_POST['username']);
+    $add_email = mysqli_real_escape_string($link, $_POST['email']);
+    $add_role = mysqli_real_escape_string($link, $_POST['role']);
+    $add_pass = $_POST['password'];
+
+    // 1. Kiểm tra trùng lặp
+    $check_query = "SELECT id FROM users WHERE username = '$add_username' OR email = '$add_email'";
+    $check_result = mysqli_query($link, $check_query);
+
+    if (mysqli_num_rows($check_result) > 0) {
+        echo "<script>alert('Error: Username or Email already exists!'); window.location.href='user-management.php';</script>";
     } else {
-        echo "<script>alert('You cannot delete your own account!'); window.location.href='user-management.php';</script>";
+        // 2. Mã hóa mật khẩu (MD5 cho đồng bộ với data mẫu)
+        $pass_hash = md5($add_pass);
+        $avatar_url = "https://ui-avatars.com/api/?name=" . urlencode($add_name) . "&background=random&color=fff";
+
+        // 3. Insert vào bảng users
+        $sql_insert = "INSERT INTO users (username, password_hash, name, email, role, avatarUrl, status, createdAt) 
+                       VALUES ('$add_username', '$pass_hash', '$add_name', '$add_email', '$add_role', '$avatar_url', 'active', NOW())";
+        
+        if (mysqli_query($link, $sql_insert)) {
+            $new_user_id = mysqli_insert_id($link);
+
+            // 4. Nếu là Donor, tạo luôn profile rỗng để tránh lỗi foreign key sau này
+            if ($add_role == 'Donor') {
+                mysqli_query($link, "INSERT INTO donor_profiles (userId) VALUES ($new_user_id)");
+            }
+
+            echo "<script>alert('New user added successfully!'); window.location.href='user-management.php';</script>";
+        } else {
+            echo "<script>alert('Database Error: " . mysqli_error($link) . "');</script>";
+        }
     }
 }
 
-// B. Xử lý CẬP NHẬT User (Từ Modal Form)
+// B. Xử lý CẬP NHẬT User (UPDATE)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update') {
     $edit_id = intval($_POST['user_id']);
     $edit_name = mysqli_real_escape_string($link, $_POST['full_name']);
@@ -44,12 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     $edit_role = mysqli_real_escape_string($link, $_POST['role']);
     $edit_pass = $_POST['password'];
 
-    // Update query cơ bản
     $sql_update = "UPDATE users SET name = '$edit_name', username = '$edit_username', role = '$edit_role'";
 
-    // Nếu có nhập password mới thì update, không thì giữ nguyên
     if (!empty($edit_pass)) {
-        $pass_hash = md5($edit_pass); // Hoặc password_hash($edit_pass, PASSWORD_BCRYPT) tùy hệ thống bạn
+        $pass_hash = md5($edit_pass); 
         $sql_update .= ", password_hash = '$pass_hash'";
     }
 
@@ -62,9 +78,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     }
 }
 
+// C. Xử lý XÓA User (SOFT DELETE)
+if (isset($_GET['delete_id'])) {
+    $delete_id = intval($_GET['delete_id']);
+    if ($delete_id != $_SESSION['user_id']) {
+        // Soft delete: Chỉ đánh dấu là đã xóa (is_deleted = 1)
+        // Cần đảm bảo bảng users có cột is_deleted (INT 1, Default 0)
+        // Nếu chưa có cột này, bạn có thể dùng DELETE cứng: "DELETE FROM users WHERE id = $delete_id"
+        
+        // Kiểm tra xem cột is_deleted có tồn tại không, nếu không thì DELETE cứng
+        $check_col = mysqli_query($link, "SHOW COLUMNS FROM users LIKE 'is_deleted'");
+        if(mysqli_num_rows($check_col) > 0) {
+            $sql_del = "UPDATE users SET is_deleted = 1 WHERE id = $delete_id";
+        } else {
+            // Xóa dữ liệu bảng phụ trước khi xóa cứng
+            mysqli_query($link, "DELETE FROM donor_profiles WHERE userId = $delete_id");
+            mysqli_query($link, "DELETE FROM appointments WHERE userId = $delete_id");
+            $sql_del = "DELETE FROM users WHERE id = $delete_id";
+        }
+
+        if (mysqli_query($link, $sql_del)) {
+            echo "<script>alert('User deleted successfully!'); window.location.href='user-management.php';</script>";
+        } else {
+            echo "<script>alert('Error deleting user: " . mysqli_error($link) . "');</script>";
+        }
+    } else {
+        echo "<script>alert('You cannot delete your own account!'); window.location.href='user-management.php';</script>";
+    }
+}
+
 // --- 2. LẤY DỮ LIỆU HIỂN THỊ ---
 $search = $_GET['search'] ?? '';
 $sql = "SELECT * FROM users WHERE 1=1";
+
+// Nếu có cột is_deleted thì chỉ lấy user chưa xóa
+$check_col = mysqli_query($link, "SHOW COLUMNS FROM users LIKE 'is_deleted'");
+if(mysqli_num_rows($check_col) > 0) {
+    $sql .= " AND is_deleted = 0";
+}
+
 if (!empty($search)) {
     $search_e = mysqli_real_escape_string($link, $search);
     $sql .= " AND (username LIKE '%$search_e%' OR name LIKE '%$search_e%' OR role LIKE '%$search_e%')";
@@ -113,10 +165,6 @@ if ($result) {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .dark ::-webkit-scrollbar-thumb { background: #475569; }
-        
-        /* Modal Animation */
-        .modal-fade-in { animation: fadeIn 0.2s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body class="bg-[#F3F4F6] dark:bg-dark text-gray-800 dark:text-gray-200 font-sans transition-colors duration-300">
@@ -158,9 +206,7 @@ if ($result) {
                 <h1 class="text-2xl font-bold text-white tracking-tight">User Management</h1>
                 <div class="flex items-center gap-6">
                     <div class="relative hidden md:block">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </span>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
                         <input type="text" placeholder="Search here..." class="w-80 pl-10 pr-4 py-2.5 rounded-lg text-sm bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400">
                     </div>
                     <button class="relative p-2 bg-[#A01818] rounded-full text-white hover:bg-red-800 transition">
@@ -169,17 +215,13 @@ if ($result) {
                     </button>
                     <div class="relative">
                         <button id="user-menu-btn" class="flex items-center gap-3 pl-4 border-l border-red-800/50 focus:outline-none group">
-                            <div class="text-right hidden md:block">
-                                <div class="text-sm font-bold text-white leading-tight"><?php echo htmlspecialchars($current_username); ?></div>
-                                <div class="text-xs text-red-200 font-medium"><?php echo $user_sub_role; ?></div>
-                            </div>
+                            <div class="text-right hidden md:block"><div class="text-sm font-bold text-white leading-tight"><?php echo htmlspecialchars($current_username); ?></div><div class="text-xs text-red-200 font-medium"><?php echo $user_sub_role; ?></div></div>
                             <img src="<?php echo $current_avatar; ?>" class="w-10 h-10 rounded-full border-2 border-white/20 bg-white object-cover">
                             <svg id="user-menu-arrow" class="text-red-200 group-hover:text-white transition-transform duration-200" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                         </button>
-                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-3 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl py-2 z-50 border border-gray-100 dark:border-gray-700 origin-top-right transition-all">
+                        <div id="user-menu-dropdown" class="hidden absolute right-0 mt-3 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl py-2 z-50 border border-gray-100 dark:border-gray-700">
                             <a href="logout.php" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 transition-colors">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                                Sign Out
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out
                             </a>
                         </div>
                     </div>
@@ -187,6 +229,7 @@ if ($result) {
             </header>
 
             <main class="flex-1 overflow-y-auto p-8 bg-[#F3F4F6] dark:bg-dark">
+                
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">User Management</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Manage Doctors, Donors, and Admins accounts.</p>
@@ -200,7 +243,7 @@ if ($result) {
                     </form>
                     <div class="flex items-center gap-3">
                         <a href="user-management.php" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white transition" title="Refresh List"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg></a>
-                        <button onclick="alert('Tính năng thêm đang phát triển')" class="flex items-center gap-2 bg-[#B91C1C] hover:bg-[#991B1B] text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition text-sm">
+                        <button onclick="openAddModal()" class="flex items-center gap-2 bg-[#B91C1C] hover:bg-[#991B1B] text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm transition text-sm">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Add User
                         </button>
                     </div>
@@ -228,21 +271,19 @@ if ($result) {
                                             'Donor' => 'bg-green-100 text-green-700',
                                             default => 'bg-gray-100 text-gray-700'
                                         };
+                                        $created = $u['createdAt'] ? date('d/m/Y', strtotime($u['createdAt'])) : '—';
+                                        $name = $u['name'] ? htmlspecialchars($u['name']) : '—';
                                     ?>
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                                         <td class="py-5 px-6 text-sm text-gray-500 font-medium"><?php echo $index + 1; ?>.</td>
                                         <td class="py-5 px-6 text-sm text-gray-700 dark:text-gray-300 font-medium"><?php echo htmlspecialchars($u['username']); ?></td>
-                                        <td class="py-5 px-6 text-sm text-gray-700 dark:text-gray-300"><?php echo htmlspecialchars($u['name'] ?? '—'); ?></td>
+                                        <td class="py-5 px-6 text-sm text-gray-700 dark:text-gray-300"><?php echo $name; ?></td>
                                         <td class="py-5 px-6"><span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold <?php echo $roleClass; ?>"><?php echo htmlspecialchars($u['role']); ?></span></td>
-                                        <td class="py-5 px-6 text-sm text-gray-500"><?php echo date('d/m/Y', strtotime($u['createdAt'])); ?></td>
+                                        <td class="py-5 px-6 text-sm text-gray-500"><?php echo $created; ?></td>
                                         <td class="py-5 px-6 text-right">
                                             <div class="flex items-center justify-end gap-3">
-                                                <button onclick='openEditModal(<?php echo json_encode($u); ?>)' class="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition dark:hover:bg-gray-700" title="Edit">
-                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                                </button>
-                                                <a href="user-management.php?delete_id=<?php echo $u['id']; ?>" onclick="return confirm('Are you sure you want to delete this user?');" class="text-[#CF2222] hover:bg-red-50 p-1.5 rounded-full transition dark:hover:bg-gray-700" title="Delete">
-                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                                                </a>
+                                                <button onclick='openEditModal(<?php echo json_encode($u); ?>)' class="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition dark:hover:bg-gray-700" title="Edit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                                                <a href="user-management.php?delete_id=<?php echo $u['id']; ?>" onclick="return confirm('Are you sure you want to delete this user?')" class="text-[#CF2222] hover:bg-red-50 p-1.5 rounded-full transition dark:hover:bg-gray-700" title="Delete"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></a>
                                             </div>
                                         </td>
                                     </tr>
@@ -265,124 +306,76 @@ if ($result) {
 
     <div id="updateModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div class="bg-[#1a1f2e] w-full max-w-lg rounded-2xl shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="modalContent">
-            
             <div class="flex justify-between items-center px-6 py-5 border-b border-gray-700">
                 <h3 class="text-xl font-bold text-gray-200">Update User</h3>
-                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white transition bg-gray-800 p-1.5 rounded-full">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white bg-gray-800 p-1.5 rounded-full"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
-
             <form method="POST" class="p-6 space-y-5">
                 <input type="hidden" name="action" value="update">
                 <input type="hidden" name="user_id" id="modal_user_id">
+                <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Full Name</label><input type="text" name="full_name" id="modal_full_name" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Username <span class="text-red-500">*</span></label><input type="text" name="username" id="modal_username" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Role <span class="text-red-500">*</span></label><select name="role" id="modal_role" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"><option value="Admin">Admin</option><option value="Doctor">Doctor</option><option value="Donor">Donor</option></select></div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Password (Leave blank to keep current)</label><input type="password" name="password" placeholder="********" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                <div class="flex justify-end gap-3 mt-8"><button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-lg bg-gray-700 text-gray-300 font-medium hover:bg-gray-600 transition">Cancel</button><button type="submit" class="px-5 py-2.5 rounded-lg bg-[#4F46E5] text-white font-medium hover:bg-[#4338CA] shadow-lg transition">Save Changes</button></div>
+            </form>
+        </div>
+    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1.5">Full Name</label>
-                    <input type="text" name="full_name" id="modal_full_name" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+    <div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-[#1a1f2e] w-full max-w-lg rounded-2xl shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="addModalContent">
+            <div class="flex justify-between items-center px-6 py-5 border-b border-gray-700">
+                <h3 class="text-xl font-bold text-gray-200">Add New User</h3>
+                <button onclick="closeAddModal()" class="text-gray-400 hover:text-white bg-gray-800 p-1.5 rounded-full"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <form method="POST" class="p-6 space-y-5">
+                <input type="hidden" name="action" value="add">
+                <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Full Name</label><input type="text" name="full_name" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Username <span class="text-red-500">*</span></label><input type="text" name="username" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Email</label><input type="email" name="email" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"></div>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1.5">Username (Login ID) <span class="text-red-500">*</span></label>
-                    <input type="text" name="username" id="modal_username" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1.5">Role <span class="text-red-500">*</span></label>
-                    <select name="role" id="modal_role" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition appearance-none cursor-pointer">
-                        <option value="Admin">Admin</option>
-                        <option value="Doctor">Doctor</option>
-                        <option value="Donor">Donor</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1.5">Password (Leave blank to keep current)</label>
-                    <input type="password" name="password" placeholder="********" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition">
-                </div>
-
-                <div class="flex justify-end gap-3 mt-8">
-                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-lg bg-gray-700 text-gray-300 font-medium hover:bg-gray-600 transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-lg bg-[#4F46E5] text-white font-medium hover:bg-[#4338CA] shadow-lg transition">Save Changes</button>
-                </div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Role <span class="text-red-500">*</span></label><select name="role" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"><option value="Admin">Admin</option><option value="Doctor">Doctor</option><option value="Donor">Donor</option></select></div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1.5">Password <span class="text-red-500">*</span></label><input type="password" name="password" class="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none" required></div>
+                <div class="flex justify-end gap-3 mt-8"><button type="button" onclick="closeAddModal()" class="px-5 py-2.5 rounded-lg bg-gray-700 text-gray-300 font-medium hover:bg-gray-600 transition">Cancel</button><button type="submit" class="px-5 py-2.5 rounded-lg bg-[#4F46E5] text-white font-medium hover:bg-[#4338CA] shadow-lg transition">Create User</button></div>
             </form>
         </div>
     </div>
 
     <script>
-        // --- Modal Logic ---
-        const modal = document.getElementById('updateModal');
-        const modalContent = document.getElementById('modalContent');
+        const updateModal = document.getElementById('updateModal');
+        const updateContent = document.getElementById('modalContent');
+        const addModal = document.getElementById('addModal');
+        const addContent = document.getElementById('addModalContent');
 
         function openEditModal(user) {
-            // Fill data
             document.getElementById('modal_user_id').value = user.id;
             document.getElementById('modal_full_name').value = user.name || '';
             document.getElementById('modal_username').value = user.username;
             document.getElementById('modal_role').value = user.role;
-            
-            // Show modal with animation
-            modal.classList.remove('hidden');
-            modalContent.classList.remove('opacity-0', 'scale-95');
-            modalContent.classList.add('opacity-100', 'scale-100');
+            updateModal.classList.remove('hidden');
+            setTimeout(() => { updateContent.classList.remove('opacity-0', 'scale-95'); updateContent.classList.add('opacity-100', 'scale-100'); }, 10);
+        }
+        function closeEditModal() { updateContent.classList.remove('opacity-100', 'scale-100'); updateContent.classList.add('opacity-0', 'scale-95'); setTimeout(() => { updateModal.classList.add('hidden'); }, 200); }
+
+        function openAddModal() {
+            addModal.classList.remove('hidden');
+            setTimeout(() => { addContent.classList.remove('opacity-0', 'scale-95'); addContent.classList.add('opacity-100', 'scale-100'); }, 10);
+        }
+        function closeAddModal() {
+            addContent.classList.remove('opacity-100', 'scale-100'); addContent.classList.add('opacity-0', 'scale-95'); setTimeout(() => { addModal.classList.add('hidden'); }, 200);
         }
 
-        function closeEditModal() {
-            // Hide animation
-            modalContent.classList.remove('opacity-100', 'scale-100');
-            modalContent.classList.add('opacity-0', 'scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 200);
-        }
-
-        // Close when clicking outside
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeEditModal();
-        });
-
-        // --- Theme & Dropdown Logic (Giữ nguyên) ---
         const userBtn = document.getElementById('user-menu-btn');
         const userDropdown = document.getElementById('user-menu-dropdown');
         const userArrow = document.getElementById('user-menu-arrow');
-        userBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-            userArrow.classList.toggle('rotate-180');
-        });
-        document.addEventListener('click', (e) => {
-            if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-                userDropdown.classList.add('hidden');
-                userArrow.classList.remove('rotate-180');
-            }
-        });
+        userBtn.addEventListener('click', (e) => { e.stopPropagation(); userDropdown.classList.toggle('hidden'); userArrow.classList.toggle('rotate-180'); });
+        document.addEventListener('click', (e) => { if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) { userDropdown.classList.add('hidden'); userArrow.classList.remove('rotate-180'); } });
 
-        // Dark Mode
-        const btn = document.getElementById('theme-toggle');
-        const moon = document.getElementById('moon-icon');
-        const sun = document.getElementById('sun-icon');
-        const html = document.documentElement;
-        function updateIcon() {
-            if (html.classList.contains('dark')) {
-                moon.classList.add('hidden');
-                sun.classList.remove('hidden');
-            } else {
-                moon.classList.remove('hidden');
-                sun.classList.add('hidden');
-            }
-        }
+        const btn = document.getElementById('theme-toggle'); const moon = document.getElementById('moon-icon'); const sun = document.getElementById('sun-icon'); const html = document.documentElement;
+        function updateIcon() { if (html.classList.contains('dark')) { moon.classList.add('hidden'); sun.classList.remove('hidden'); } else { moon.classList.remove('hidden'); sun.classList.add('hidden'); } }
         updateIcon();
-        btn.addEventListener('click', () => {
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-            updateIcon();
-        });
+        btn.addEventListener('click', () => { if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.setItem('theme', 'light'); } else { html.classList.add('dark'); localStorage.setItem('theme', 'dark'); } updateIcon(); });
     </script>
 </body>
 </html>
