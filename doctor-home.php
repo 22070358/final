@@ -1,9 +1,9 @@
 <?php
-// doctor-home.php - Dashboard Bác sĩ (Full tính năng: Giờ VN + Nút Edit góc trái)
+
 include 'config.php';
 include 'connection.php';
 
-// 1. Thiết lập múi giờ Việt Nam
+
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 // Chặn truy cập nếu không phải Doctor
