@@ -1,44 +1,17 @@
 <?php
-
 include 'config.php';
 include 'connection.php';
 
 
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
-// Chặn truy cập nếu không phải Doctor
+
 requireRole('Doctor');
 
 $user_id = $_SESSION['user_id'];
 $full_name = $_SESSION['full_name'] ?? 'Dr. User';
 $role = $_SESSION['role'] ?? 'Specialist Doctor';
 $current_month = date('F, Y');
-
-// --- XỬ LÝ CẬP NHẬT PROFILE (PHP LOGIC) ---
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'update_profile') {
-    $new_name = mysqli_real_escape_string($link, $_POST['full_name']);
-    $new_password = $_POST['password'];
-    
-    // Câu lệnh SQL cơ bản: Cập nhật tên
-    $sql_update = "UPDATE users SET name = '$new_name'";
-    
-    // Nếu người dùng nhập mật khẩu mới thì cập nhật thêm password
-    if (!empty($new_password)) {
-        $new_hash = password_hash($new_password, PASSWORD_DEFAULT);
-        $sql_update .= ", password_hash = '$new_hash'";
-    }
-    
-    $sql_update .= " WHERE id = $user_id";
-    
-    if (mysqli_query($link, $sql_update)) {
-        // Cập nhật lại Session và biến hiển thị ngay lập tức
-        $_SESSION['full_name'] = $new_name;
-        $full_name = $new_name; 
-        echo "<script>alert('Profile updated successfully!'); window.location.href='doctor-home.php';</script>";
-    } else {
-        echo "<script>alert('Error updating profile: " . mysqli_error($link) . "');</script>";
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -98,10 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                                 <p class="text-sm font-bold text-gray-900"><?php echo htmlspecialchars($full_name); ?></p>
                                 <p class="text-xs text-gray-500">Doctor</p>
                             </div>
-                            <button onclick="openProfileModal()" class="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                Edit Profile
-                            </button>
+                            
                             <a href="logout.php" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                                 Sign out
@@ -171,12 +141,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 
                     <div class="grid grid-cols-7 gap-2 mb-6">
                         <?php 
-                        // Logic lịch tự động
-                        $today = new DateTime(); // Đã theo múi giờ VN do set ở đầu file
+                        $today = new DateTime(); 
                         $currentDate = $today->format('Y-m-d'); 
                         
                         $startOfWeek = clone $today;
-                        // Nếu hôm nay không phải Thứ 2 (1), lùi về Thứ 2 gần nhất
                         if ($today->format('N') != 1) $startOfWeek->modify('last monday');
 
                         for ($i = 0; $i < 7; $i++) {
@@ -250,45 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         </div>
     </main>
 
-    <button onclick="openProfileModal()" class="fixed bottom-6 left-6 z-40 flex items-center gap-2 bg-gray-900 text-white px-5 py-3 rounded-full shadow-2xl hover:bg-gray-800 transition transform hover:scale-105">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-        <span class="font-bold text-sm">Edit Info</span>
-    </button>
-
-    <div id="profileModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl transform scale-95 opacity-0 transition-all duration-300" id="profileModalContent">
-            <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100">
-                <h3 class="text-lg font-bold text-gray-800">Edit Profile</h3>
-                <button onclick="closeProfileModal()" class="text-gray-400 hover:text-gray-600 bg-gray-50 p-1.5 rounded-full transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            
-            <form method="POST" class="p-6 space-y-5">
-                <input type="hidden" name="action" value="update_profile">
-                
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
-                    <input type="text" name="full_name" value="<?php echo htmlspecialchars($full_name); ?>" required 
-                           class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:ring-2 focus:ring-brand focus:border-brand outline-none transition">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">New Password <span class="text-gray-400 font-normal text-xs">(Leave blank to keep current)</span></label>
-                    <input type="password" name="password" placeholder="••••••••" 
-                           class="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:ring-2 focus:ring-brand focus:border-brand outline-none transition">
-                </div>
-
-                <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeProfileModal()" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-600 font-semibold hover:bg-gray-50 transition text-sm">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-lg bg-brand hover:bg-brand-dark text-white font-semibold shadow-lg shadow-red-200 transition text-sm">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        // -- User Dropdown Logic --
         const userBtn = document.getElementById('user-menu-btn');
         const userDropdown = document.getElementById('user-menu-dropdown');
         const userArrow = document.getElementById('user-menu-arrow');
@@ -305,32 +235,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                 userArrow.classList.remove('rotate-180');
             }
         });
-
-        // -- Profile Modal Logic --
-        const profileModal = document.getElementById('profileModal');
-        const profileContent = document.getElementById('profileModalContent');
-
-        function openProfileModal() {
-            // Đóng dropdown menu nếu đang mở
-            userDropdown.classList.add('hidden');
-            userArrow.classList.remove('rotate-180');
-            
-            profileModal.classList.remove('hidden');
-            // Animation fade-in
-            setTimeout(() => {
-                profileContent.classList.remove('opacity-0', 'scale-95');
-                profileContent.classList.add('opacity-100', 'scale-100');
-            }, 10);
-        }
-
-        function closeProfileModal() {
-            // Animation fade-out
-            profileContent.classList.remove('opacity-100', 'scale-100');
-            profileContent.classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
-                profileModal.classList.add('hidden');
-            }, 200);
-        }
     </script>
 </body>
 </html>
