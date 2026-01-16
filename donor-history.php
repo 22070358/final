@@ -37,23 +37,25 @@ if (isset($_GET['cancel_id'])) {
 }
 
 // --- LẤY DỮ LIỆU LỊCH SỬ ---
-$sql = "SELECT * FROM appointments WHERE userId = $user_id ORDER BY appointmentDate DESC, appointmentTime DESC";
+$sql = "SELECT * FROM appointments WHERE userId = $user_id ORDER BY appointmentDate DESC";
 $result = mysqli_query($link, $sql);
 $history_list = [];
 
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
-        // Format ngày giờ hiển thị
-        $row['date_fmt'] = date('d/m/Y', strtotime($row['appointmentDate']));
-        $row['time_fmt'] = date('H:i', strtotime($row['appointmentTime']));
+        // Format ngày giờ từ cùng một cột appointmentDate
+        $timestamp = strtotime($row['appointmentDate']);
+        $row['date_fmt'] = date('d/m/Y', $timestamp);
+        $row['time_fmt'] = date('H:i', $timestamp); // Lấy giờ từ chính cột ngày
         
-        // Xử lý màu sắc trạng thái (CSS Tailwind)
+        // ... (phần xử lý màu sắc trạng thái giữ nguyên) ...
+        
+        // (Copy lại phần xử lý màu để đảm bảo code chạy đúng)
         if ($row['status'] == 'Completed') {
             $row['status_class'] = 'bg-green-100 text-green-700 border-green-200';
         } elseif ($row['status'] == 'Cancelled') {
             $row['status_class'] = 'bg-gray-100 text-gray-500 border-gray-200';
         } else {
-            // Pending hoặc Confirmed
             $row['status_class'] = 'bg-yellow-100 text-yellow-700 border-yellow-200';
         }
         
