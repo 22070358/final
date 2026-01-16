@@ -1,17 +1,25 @@
 <?php
+// Bật hiển thị lỗi để dễ debug nếu có sự cố
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include 'config.php';
 include 'connection.php';
 
-
+// Chỉ cho phép Donor vào
 requireRole('Donor');
 
 $user_id = $_SESSION['user_id'];
 $full_name = $_SESSION['full_name'] ?? 'Donor';
+// Tạo avatar mặc định
 $current_avatar = "https://ui-avatars.com/api/?name=" . urlencode($full_name) . "&background=random&color=fff";
 
-// --- XỬ LÝ HỦY LỊCH ---\
+// --- XỬ LÝ HỦY LỊCH ---
 if (isset($_GET['cancel_id'])) {
     $cancel_id = intval($_GET['cancel_id']);
+    
+    // Kiểm tra: Chỉ cho hủy nếu đúng là của user này và trạng thái là Pending
     $check_sql = "SELECT id FROM appointments WHERE id = $cancel_id AND userId = $user_id AND status = 'Pending'";
     $check_res = mysqli_query($link, $check_sql);
     
@@ -19,6 +27,8 @@ if (isset($_GET['cancel_id'])) {
         $update_sql = "UPDATE appointments SET status = 'Cancelled' WHERE id = $cancel_id";
         if (mysqli_query($link, $update_sql)) {
             echo "<script>alert('Appointment cancelled successfully.'); window.location.href='donor-history.php';</script>";
+        } else {
+            echo "<script>alert('Error canceling appointment: " . mysqli_error($link) . "'); window.location.href='donor-history.php';</script>";
         }
     } else {
         echo "<script>alert('Cannot cancel this appointment (It may be completed or already cancelled).'); window.location.href='donor-history.php';</script>";
@@ -30,18 +40,20 @@ if (isset($_GET['cancel_id'])) {
 $sql = "SELECT * FROM appointments WHERE userId = $user_id ORDER BY appointmentDate DESC, appointmentTime DESC";
 $result = mysqli_query($link, $sql);
 $history_list = [];
+
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
-        // Format lại dữ liệu hiển thị
+        // Format ngày giờ hiển thị
         $row['date_fmt'] = date('d/m/Y', strtotime($row['appointmentDate']));
         $row['time_fmt'] = date('H:i', strtotime($row['appointmentTime']));
         
-        // Màu sắc trạng thái
+        // Xử lý màu sắc trạng thái (CSS Tailwind)
         if ($row['status'] == 'Completed') {
             $row['status_class'] = 'bg-green-100 text-green-700 border-green-200';
         } elseif ($row['status'] == 'Cancelled') {
             $row['status_class'] = 'bg-gray-100 text-gray-500 border-gray-200';
         } else {
+            // Pending hoặc Confirmed
             $row['status_class'] = 'bg-yellow-100 text-yellow-700 border-yellow-200';
         }
         
@@ -90,7 +102,7 @@ if ($result) {
                         </button>
                         <div id="user-menu-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100 z-50">
                             <a href="logout.php" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                                 Sign out
                             </a>
                         </div>
@@ -213,30 +225,32 @@ if ($result) {
     </div>
 
     <script>
-        // User Menu Logic
+        // User Menu Logic (Dropdown Avatar)
         const userBtn = document.getElementById('user-menu-btn');
         const userDropdown = document.getElementById('user-menu-dropdown');
         const userArrow = document.getElementById('user-menu-arrow');
 
-        userBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-            userArrow.classList.toggle('rotate-180');
-        });
+        if(userBtn) {
+            userBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+                userArrow.classList.toggle('rotate-180');
+            });
 
-        document.addEventListener('click', (e) => {
-            if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-                userDropdown.classList.add('hidden');
-                userArrow.classList.remove('rotate-180');
-            }
-        });
+            document.addEventListener('click', (e) => {
+                if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                    userArrow.classList.remove('rotate-180');
+                }
+            });
+        }
 
-        // --- MODAL LOGIC (MỚI) ---
+        // --- MODAL LOGIC (Xử lý bật tắt Popup Details) ---
         const modal = document.getElementById('detailModal');
         const modalContent = document.getElementById('detailModalContent');
 
         function openModal(data) {
-            // Fill data into modal
+            // Điền dữ liệu vào Modal
             document.getElementById('m_id').innerText = '#' + data.id;
             document.getElementById('m_date').innerText = data.date_fmt;
             document.getElementById('m_time').innerText = data.time_fmt;
@@ -246,13 +260,13 @@ if ($result) {
             const statusEl = document.getElementById('m_status');
             statusEl.innerText = data.status;
             
-            // Reset classes
+            // Đặt màu cho status trong modal
             statusEl.className = 'px-2.5 py-0.5 rounded text-xs font-bold border';
             if(data.status === 'Completed') statusEl.classList.add('bg-green-100', 'text-green-700', 'border-green-200');
             else if(data.status === 'Cancelled') statusEl.classList.add('bg-gray-100', 'text-gray-500', 'border-gray-200');
             else statusEl.classList.add('bg-yellow-100', 'text-yellow-700', 'border-yellow-200');
 
-            // Show Modal
+            // Hiển thị Modal với hiệu ứng
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modalContent.classList.remove('scale-95', 'opacity-0');
@@ -261,6 +275,7 @@ if ($result) {
         }
 
         function closeModal() {
+            // Ẩn Modal với hiệu ứng
             modalContent.classList.remove('scale-100', 'opacity-100');
             modalContent.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
@@ -268,7 +283,7 @@ if ($result) {
             }, 300);
         }
 
-        // Close when clicking outside
+        // Đóng khi click ra ngoài vùng trắng
         modal.addEventListener('click', (e) => {
             if(e.target === modal) closeModal();
         });
