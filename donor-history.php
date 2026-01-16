@@ -2,7 +2,7 @@
 include 'config.php';
 include 'connection.php';
 
-// Chỉ cho phép Donor vào
+
 requireRole('Donor');
 
 $user_id = $_SESSION['user_id'];
@@ -12,7 +12,6 @@ $current_avatar = "https://ui-avatars.com/api/?name=" . urlencode($full_name) . 
 // --- XỬ LÝ HỦY LỊCH ---\
 if (isset($_GET['cancel_id'])) {
     $cancel_id = intval($_GET['cancel_id']);
-    // Chỉ cho hủy nếu trạng thái là Pending
     $check_sql = "SELECT id FROM appointments WHERE id = $cancel_id AND userId = $user_id AND status = 'Pending'";
     $check_res = mysqli_query($link, $check_sql);
     
